@@ -10,6 +10,7 @@ __pycache__/
 .logs/
 *.config.json
 *.xdb
+.tmp/
 
 # Distribution / packaging
 .Python
