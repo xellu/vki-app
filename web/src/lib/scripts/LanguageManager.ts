@@ -4,6 +4,7 @@ import type { LanguageOption, LanguageModel } from '$lib/models/Language';
 import { messageStore, languageStore } from '$lib/stores/LanguageStore';
 
 const itemId = "langId"; //localStorage key
+const defaultLang: LanguageOption = ru_ru;
 
 const languages: LanguageOption[] = [en_us, ru_ru];
 
@@ -18,7 +19,7 @@ function getActiveLanguage(): LanguageModel {
     }
 
     console.warn(`Unable to get active language, setting to en_us`);
-    return en_us.model;
+    return defaultLang.model;
 }
 
 function getActiveLanguageObj(): LanguageOption {
@@ -32,7 +33,7 @@ function getActiveLanguageObj(): LanguageOption {
     }
 
     console.warn(`Unable to get active language, setting to en_us`);
-    return en_us;
+    return defaultLang;
 }
 
 function setActiveLanguage(langId: string) {

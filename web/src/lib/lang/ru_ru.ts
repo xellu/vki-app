@@ -14,7 +14,16 @@ export const ru_ru: LanguageOption = {
             absences: "Пропуски"
         },
 
+        settings: {
+            appSettings: {
+                label: "Настройки приложения",
+                language: "Язык",
+                darkMode: "Тёмная тема"
+            }
+        },
+
         grades: {
+            noGrades: "По этому предмету пока нет оценок",
             about: {
                 title: "Об оценке",
                 date: "Дата",

@@ -9,12 +9,15 @@
 
 	onMount(() => {
 		loadLanguage();
+	
+		document.documentElement.setAttribute('data-mode', localStorage.getItem('mode') || 'dark');
 	})
 
 	const ICONS: string[] = [
 		"keyboard_backspace",
 		"close",
-		
+		"settings",
+
 	].toSorted();
 </script>
 

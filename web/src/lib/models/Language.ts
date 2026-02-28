@@ -15,7 +15,19 @@ export type LanguageModel = {
         absences: string,
     }
 
+    settings: {
+        appSettings: {
+            label: string,
+            language: string,
+            darkMode: string,
+        },
+        appInfo: {
+            label: string
+        }
+    }
+
     grades: {
+        noGrades: string,
         about: {
             title: string,
             date: string,

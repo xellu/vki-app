@@ -14,7 +14,19 @@ export const en_us: LanguageOption = {
             absences: "Absences"
         },
 
+        settings: {
+            appSettings: {
+                label: "App Settings",
+                language: "Language",
+                darkMode: "Dark Mode"
+            },
+            appInfo: {
+                label: "About Application"
+            }
+        },
+
         grades: {
+            noGrades: "You don't have any grades for this subject",
             about: {
                 title: "About Grade",
                 date: "Date",

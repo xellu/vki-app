@@ -124,10 +124,10 @@
 
                     <p class="text-lg px-1 font-bold
                         {getAverageGrade(sub.grades) < 3.5 ?
-                            (getAverageGrade(sub.grades) <= 2.5 ? 'text-error-500' : 'text-warning-500') : "text-success-500"
+                            (getAverageGrade(sub.grades) <= 2.5 ? 'text-error-500' : 'text-warning-500') : (Number.isNaN(getAverageGrade(sub.grades)) ? 'opacity-10' : '"text-success-500"')
                         }"
                     >    
-                        {getAverageGrade(sub.grades).toFixed(2)}
+                        {getAverageGrade(sub.grades) ? getAverageGrade(sub.grades).toFixed(2) : '0.00'}
                     </p>
                 </div>
                 <div class="flex gap-1 flex-wrap p-2 card preset-filled-surface-50-950 w-full mt-1 rounded-md">
@@ -136,11 +136,15 @@
                             gradePreview.grade = g;
                             gradePreview.open = true;
                         }}>
-                            <p class="{GradeColors[g.value] || "text-white"}">
-                                {g.grade}{#if g.type}<span class="text-xs">({g.type})</span>{/if}{#if index != getValidGrades(sub.grades).length - 1}<span class="text-white">,</span>{/if}
+                            <p class="{GradeColors[g.value] || "text-surface-950-50"}">
+                                {g.grade}{#if g.type}<span class="text-xs">({g.type})</span>{/if}{#if index != getValidGrades(sub.grades).length - 1}<span class="text-surface-950-50">,</span>{/if}
                             </p>
                         </button>
                     {/each}
+
+                    {#if getValidGrades(sub.grades).length == 0}
+                        <p class="text-xs text-surface-500">{messages.grades.noGrades}</p>
+                    {/if}
                 </div>
             </div>
         {/each}
@@ -151,7 +155,7 @@
     title = {messages.grades.about.title}
     bind:open = {gradePreview.open}
 >
-    <h2 class="text-7xl font-bold text-center mb-5 {gradePreview.grade?.value ? GradeColors[gradePreview.grade.value] || 'text-white' : 'text-white'}">{gradePreview.grade?.grade}</h2>
+    <h2 class="text-7xl font-bold text-center mb-5 {gradePreview.grade?.value ? GradeColors[gradePreview.grade.value] || 'text-surface-950-50' : 'text-surface-950-50'}">{gradePreview.grade?.grade}</h2>
 
     {#if gradePreview.grade?.type}
         <p><span class="font-semibold">{messages.grades.about.type}:</span> {gradePreview.grade?.type}</p>
