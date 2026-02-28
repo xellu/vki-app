@@ -32,6 +32,11 @@
 
 
 <div class="flex flex-col w-screen h-screen">
+    <div class="flex items-center gap-3 p-3">
+        <h1 class="h6 text-primary-500">VKI Portal</h1>
+        <p class="text-surface-300">•</p>
+        <p class="text-xs">made by <a href="https://github.com/xellu" class="underline" target="_blank">Xellu</a></p>
+    </div>
     <div class="grow flex items-center justify-center flex-wrap gap-3 md:gap-10">
         {#each PAGES as p}
             <a href="{p.url}" title={messages.home[p.label]}>
