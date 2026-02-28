@@ -22,7 +22,7 @@ logger = LogManager("Routes.Http.Schedule")
 @Request.GET()
 async def timetables(ctx: Context):
     if not os.path.exists(Config("vki")["schedules.pdfTemp"]):
-        await download_timetables()
+        download_timetables()
         
     out = {}
     failed = []

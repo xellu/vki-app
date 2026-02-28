@@ -26,11 +26,11 @@ class Lesson:
 
     def to_dict(self) -> dict:
         return {
-            'subject': self.subject,
-            'teacher': self.teacher,
-            'classroom': self.classroom,
-            'changes': self.changes,
-            'isCancelled': self.isCancelled,
+            "subject": self.subject,
+            "teacher": self.teacher,
+            "classroom": self.classroom,
+            "changes": self.changes,
+            "isCancelled": self.isCancelled,
         }
 
 
@@ -42,21 +42,21 @@ class DaySchedule:
 
     def to_dict(self) -> dict:
         return {
-            'date': self.date.timestamp() if self.date != datetime.datetime.min else None,
-            'lessons': [l.to_dict() for l in self.lessons],
+            "date": self.date.timestamp() if self.date != datetime.datetime.min else None,
+            "lessons": [l.to_dict() for l in self.lessons],
         }
 
 
 @dataclass
 class WeekSchedule:
-    _id = f"wsh_{uuid4().hex}"
-
     className: str #e.g. 2401a1
     days: list[DaySchedule]
+    firstDay: datetime.datetime = None
 
     def to_dict(self) -> dict:
+        first = self.firstDay or (self.days[0].date if self.days else None)
         return {
-            '_id': self._id,
-            'className': self.className,
-            'days': [d.to_dict() for d in self.days],
+            "className": self.className,
+            "days": [d.to_dict() for d in self.days],
+            "firstDay": first.timestamp() if first else None,
         }
