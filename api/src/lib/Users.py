@@ -1,11 +1,15 @@
+from cryptography.fernet import Fernet
+
 from .models.User import UserModel, SanitizeUser
 
+from nautica.api import MongoDB, Config
 from nautica.services.logger import LogManager
-from nautica.api import MongoDB
+from nautica.services.shell.descriptor import ShellCommand
 
 # from plugins.intercom import Intercom
 
 logger = LogManager("Lib.Users")
+fernet = Fernet(Config("auth")["encryptionKey"])
 
 class UserActionResponse:
     def __init__(self, ok: bool, error: str | None = None, meta: any = None):
@@ -32,11 +36,11 @@ class UserManager:
         self.user = _data or None
         
         if not uid and not email and not _data:
-            raise ValueError("User ID, Discord ID or Minecraft username must be provided")
+            raise ValueError("User ID or NSU E-mail must be provided")
         
         self.load()
         
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Check if the user is valid."""
         return self.user is not None
     
@@ -51,7 +55,7 @@ class UserManager:
             self.uid = self.user["_id"]
             self.email = self.user["email"]
     
-    def update(self):
+    def update(self) -> UserActionResponse:
         """Update the user in the database."""
         if not self.is_valid():
             return UserActionResponse(False, "User not found")
@@ -60,7 +64,7 @@ class UserManager:
         
         return UserActionResponse(True)
     
-    def get(self, key: str = None, fallback = None):
+    def get(self, key: str = None, fallback = None) -> dict | None:
         if not key:            
             return self.user
         return self.user.get(key, fallback)
@@ -68,7 +72,7 @@ class UserManager:
     def get_profile(self):
         return SanitizeUser(self.user.copy())
 
-    def delete(self):
+    def delete(self) -> UserActionResponse:
         """Delete the user."""
         if not self.is_valid():
             return UserActionResponse(False, "User not found")
@@ -80,7 +84,18 @@ class UserManager:
         
         return UserActionResponse(True)
     
-    def create(self, email = None, password = None):
+    def encrypt_password(self, password) -> str:
+        return fernet.encrypt(password.encode()).decode()
+    
+    def decrypt_password(self) -> str | None:
+        if not self.is_valid(): return
+        
+        try:
+            return fernet.decrypt(self.get("password").encode()).decode()
+        except Exception as err:
+            logger.trace(err)
+    
+    def create(self, email = None, password = None) -> UserActionResponse:
         """Create a new user."""
         if self.is_valid():
             return UserActionResponse(False, "User already exists")
@@ -90,10 +105,15 @@ class UserManager:
             return UserActionResponse(False, "Email or password is missing")
         
         self.user["email"] = email
-        self.user["password"]
+        self.user["password"] = self.encrypt_password(password)
         
         MongoDB("vki").users.insert_one(self.user)
         self.load()
         
         return UserActionResponse(True)
     
+@ShellCommand("users.keygen", "Generate an encryption key for users", "users.keygen")
+def users_keygen(*args, **kwargs):
+    key = Fernet.generate_key()
+    logger.ok(f"Generated key: {key.decode()}")
+    logger.ok("Save this key to 'auth.config.json', make sure it does not leak :3")

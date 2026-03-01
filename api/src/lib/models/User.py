@@ -6,7 +6,7 @@ def UserModel():
         "_id": f"usr_{uuid.uuid4().hex}",
         
         "email": "", #login email used for cab.nsu.ru
-        "password": "", #AES encrypted password from cab.nsu.ru
+        "password": "", #encrypted password from cab.nsu.ru
         
         "name": "", #first and last name pulled from, you guessed it, cab.nsu
         "timetable": "", #configured schedule timetable

@@ -45,9 +45,6 @@ class ConversionBackend(object):
     def convert(self, pdf_path, png_path):
         pymupdf.Document(pdf_path)[0].get_pixmap(dpi=120).save(png_path)
 
-def delete_spaces(text: str) -> str:
-    return re.sub(r'\s+', ' ', text).strip()
-
 def _extract_lesson_content(line: str) -> tuple[str, str, str]:
     line = line.strip()
     if not line:

@@ -10,6 +10,7 @@ from nautica.services.shell.descriptor import ShellCommand
 
 from src.lib.schedule.Networking import download_timetables
 from src.lib.schedule.Parser import parse_schedule_from_pdf
+from src.lib.Language import Messages
 
 ScheduleDB = XelDB("schedule", primary_key="className")
 logger = LogManager("Lib.Schedule")
@@ -54,7 +55,7 @@ class ScheduleManager:
                 logger.ok(f"Downloaded {len(walkPath(Config('vki')['schedules.pdfTemp']))-1} PDFs, took {time.time()-start:.1f}s")
             except Exception as err:
                 logger.trace(err)
-                self.error = "scheduleDownloadError"
+                self.error = Messages.SCHEDULE_DOWNLOAD_ERROR
                 continue
                 
             try:
@@ -73,14 +74,14 @@ class ScheduleManager:
                 logger.ok(f"Extracted {len(out.keys())} schedules for classes, took {time.time()-start:.1f}s")
             except Exception as err:
                 logger.trace(err)
-                self.error = "scheduleParseError"
+                self.error = Messages.SCHEDULE_PARSING_ERROR
                 continue
                 
             try:
                 self.create_diff(out)
             except Exception as err:
                 logger.trace(err)
-                self.error = "scheduleDiffError"
+                self.error = Messages.SCHEDULE_DIFF_GEN_ERROR
                 continue
             
             self.last_update = time.time() 

@@ -12,6 +12,7 @@ __pycache__/
 *.xdb
 .tmp/
 src/tests
+nsutest.py
 
 # Distribution / packaging
 .Python

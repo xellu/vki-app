@@ -9,7 +9,7 @@ from functools import reduce
 
 from nautica.api import Config
 
-from src.lib.schedule.Parser import delete_spaces
+from src.lib.Utils import delete_spaces
 
 def fetch_page(url: str) -> str:
     res = requests.get(url, timeout=10)
