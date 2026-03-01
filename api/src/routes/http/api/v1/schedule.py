@@ -8,8 +8,7 @@ from nautica.api.http import (
     Error,
 )
 
-from src.lib.schedule.Networking import download_timetables
-from src.lib.schedule.Parser import parse_schedule_from_pdf
+from src.lib.schedule.Runner import Schedules, ScheduleDB
 
 from nautica.ext.utils import walkPath
 from nautica.api import Config
@@ -21,23 +20,15 @@ logger = LogManager("Routes.Http.Schedule")
 
 @Request.GET()
 async def timetables(ctx: Context):
-    if not os.path.exists(Config("vki")["schedules.pdfTemp"]):
-        download_timetables()
-        
+    classIds = ScheduleDB.data_keyed.copy()
     out = {}
-    failed = []
-    
-    for file in walkPath(Config("vki")["schedules.pdfTemp"]):
-        if not file.endswith(".pdf"): continue
+    for className, classId in classIds.items():
+        if not className: continue #skip unknown class names
         
-        try:
-            for k, v in parse_schedule_from_pdf(file).items():
-                out[k] = v.to_dict()
-        except Exception as e:
-            logger.trace(e)
-            failed.append(file)
+        out[className] = ScheduleDB.getById(classId)
         
     return Reply(
-        classes=out,
-        errors=failed
+        schedule=out,
+        next_update=Schedules.next_update,
+        error = Schedules.error
     )

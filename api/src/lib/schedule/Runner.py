@@ -1,27 +1,33 @@
 import time
 from threading import Thread
 
-from nautica.api import Eventer
+from nautica.api import Eventer, Config
+from nautica.ext.utils import walkPath
 from nautica.services.logger import LogManager
 from nautica.services.database.xeldb import XelDB
+from nautica.services.shell.descriptor import ShellCommand
 
 
 from src.lib.schedule.Networking import download_timetables
 from src.lib.schedule.Parser import parse_schedule_from_pdf
 
 ScheduleDB = XelDB("schedule", primary_key="className")
-logger = LogManager("Lib.Schedule.Runner")
+logger = LogManager("Lib.Schedule")
 
 class ScheduleManager:
-    def __init__(self, update_period: int = 300):
-        self.update_period = update_period
-        self.next_update = 0
+    def __init__(self):
+        self.update_period = Config("vki")["schedules.updateInterval"]
+        self.next_update = Config("vki").get("persist.scheduleNextUpdate", 0)
+        self.last_update = time.time()
         
         self.running = False
     
         self.thread = None
+        self.error = None
     
     def start(self):
+        self.running = True
+        
         self.thread = Thread(target=self.update_schedule)
         self.thread.start()
         logger.ok("Started schedule manager")
@@ -36,18 +42,56 @@ class ScheduleManager:
         while self.running:
             if time.time() < self.next_update:
                 time.sleep(1/4)
+                continue
             
             self.next_update = time.time() + self.update_period
-            download_timetables()
-            schedule = parse_schedule_from_pdf()
+            Config("vki")["persist.scheduleNextUpdate"] = self.next_update
             
-            self.create_diff(schedule)
+            try:
+                logger.info("Downloading time tables from remote...")
+                start = time.time()
+                download_timetables()
+                logger.ok(f"Downloaded {len(walkPath(Config('vki')['schedules.pdfTemp']))-1} PDFs, took {time.time()-start:.1f}s")
+            except Exception as err:
+                logger.trace(err)
+                self.error = "scheduleDownloadError"
+                continue
+                
+            try:
+                logger.info("Parsing PDF Schedules...")
+                start = time.time()
+                
+                out = {}
+                
+                for file in walkPath(Config("vki")["schedules.pdfTemp"]):
+                    if not file.endswith(".pdf"): continue
+                    
+                    schedule = parse_schedule_from_pdf(file)
+                    for k, v in schedule.items():
+                        out[k] = v
+                
+                logger.ok(f"Extracted {len(out.keys())} schedules for classes, took {time.time()-start:.1f}s")
+            except Exception as err:
+                logger.trace(err)
+                self.error = "scheduleParseError"
+                continue
+                
+            try:
+                self.create_diff(out)
+            except Exception as err:
+                logger.trace(err)
+                self.error = "scheduleDiffError"
+                continue
+            
+            self.last_update = time.time() 
+            self.error = None
+            
             
     def create_diff(self, schedule: dict):
         if not schedule:
             return
 
-        # Determine the new week's firstDay from any entry in the parsed schedule
+        #determine the new week's firstDay from any entry in the parsed schedule
         sample = next(iter(schedule.values()))
         new_first_day = sample.to_dict()["firstDay"]
 
@@ -62,7 +106,7 @@ class ScheduleManager:
                 ScheduleDB.create(**week.to_dict())
             return
 
-        # Same week — compute diffs relative to the original (start-of-week) state
+        #compute diffs relative to the original (start-of-week) state
         for class_name, week in schedule.items():
             stored = ScheduleDB.getByKey(class_name)
 
@@ -85,8 +129,8 @@ class ScheduleManager:
                     changes = {}
                     for attr in ("subject", "teacher", "classroom", "isCancelled"):
                         new_val = getattr(new_lesson, attr)
-                        # Baseline is the original value from the start of the week,
-                        # not the most recently stored value (to preserve change history correctly)
+                        #baseline is the original value from the start of the week,
+                        #not the most recently stored value (to preserve change history correctly)
                         baseline = stored_changes[attr][0] if attr in stored_changes else stored_lesson.get(attr)
                         if new_val != baseline:
                             changes[attr] = [baseline, new_val]
@@ -100,3 +144,8 @@ Schedules = ScheduleManager()
 @Eventer.on("shutdown")
 def on_shutdown(reason: str = None):
     Schedules.stop()
+    
+    
+@ShellCommand("schedule.clearcd", "Updates the schedule instantly", "schedule.clearcd")
+def reset_schedule_cooldown(*args, **kwargs):
+    Schedules.next_update = 0

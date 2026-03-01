@@ -11,53 +11,79 @@ from src.lib.models.Schedule import WeekSchedule, DaySchedule, Lesson
 
 logger = LogManager("Lib.Schedule")
 
+re_classroom = re.compile(
+    r'(?:[Аа]уд\.?\s*\d+\w*'
+    r'|дистанционн\w+'
+    r'|\d+\s*ГК)',
+    re.IGNORECASE | re.UNICODE
+)
+
+re_teacher = re.compile(
+    r'([А-ЯЁ][а-яё\-]+'                        #last name
+    r'\s+'
+    r'(?:[А-ЯЁ][а-яё]+\s+[А-ЯЁ][а-яё]+'       #full names
+    r'|(?:[А-ЯЁ][\.\-]?\s*){1,4}[А-ЯЁ]?\.?))'  #initials (handles Ц.-Ч.-Д., М. А., etc.)
+    r'\s*\.{0,2}\s*$',
+    re.UNICODE
+)
+
+re_noise = re.compile(
+    r'^[\s\.\-,]+'                              #leading dots/spaces/dashes
+    r'|(?:Лекци[яи]|Семинар[а-я]*|Лаб\.?|'
+    r'Практическое\s+занятие\.?|Произв\.\s*пр\.|'
+    r'Уч(?:ебная)?\.\s*практика|Отмена|НГУ\s+ул\.|'
+    r'НГУ|КПА|ВКИ|Ул\.\s*\S+[^,]*,|'
+    r'(?:Пирогова|Пирогов)[^,]*,?|'
+    r'\(\d+\))'                                 #e.g. (285)
+    r'[\s\.\-,]*',
+    re.IGNORECASE | re.UNICODE
+)
+
 class ConversionBackend(object):
     # Custom camelot backend - roughly 3x faster than the default
+    #yes i literally had to translate the comments to even understand ts
     def convert(self, pdf_path, png_path):
         pymupdf.Document(pdf_path)[0].get_pixmap(dpi=120).save(png_path)
 
 def delete_spaces(text: str) -> str:
-    # Replace multiple spaces/newlines/tabs with a single space
     return re.sub(r'\s+', ' ', text).strip()
 
-def _extract_lesson_content(raw: str) -> tuple[str, str, str]:
-    # Clean up cell text
-    cont = delete_spaces(raw.replace('\n', ' ')).replace('..', '.').strip(' .\n\t')
-    # Normalize all-caps sequences (e.g. "ВЫСШАЯ МАТЕМАТИКА" -> "Высшая математика")
-    cont = re.sub(
-        r'(\b[A-ZА-ЯЁ]{3,}\b(?:\s+\b[A-ZА-ЯЁ]+\b)+)',
-        lambda m: m.group(0).capitalize(),
-        cont
-    )
+def _extract_lesson_content(line: str) -> tuple[str, str, str]:
+    line = line.strip()
+    if not line:
+        return 'N/A', 'N/A', 'N/A'
 
-    # Extract teacher name (e.g. "Иванов И.И.")
-    teacher_matches = re.findall(r'\b[А-ЯЁ][а-яё]*\s[А-ЯЁ]\.\s?[А-ЯЁ]\.?\b', cont)
-    teacher = teacher_matches[0] if teacher_matches else ''
-    if teacher:
-        # Ensure initials end with a period and have no trailing space before them
-        normalized = teacher + '.'
-        if normalized[-3] == ' ':
-            normalized = normalized[:-3] + normalized[-2:]
-        cont = cont.replace(teacher, normalized)
-        teacher = normalized
+    classroom = 'N/A'
+    teacher = 'N/A'
+    subject = 'N/A'
 
-    # Extract classroom (3-digit number with optional suffix, or a named location)
-    classroom_matches = re.findall(r'\b\d{3}[a-zа-яё]?\b', cont)
-    classroom = classroom_matches[0] if classroom_matches else ''
-    for named in ('Читальный зал', 'Актовый зал', 'Физкультура', 'Физическая культура'):
-        if named in cont:
-            classroom = named
+    #extract classroom
+    m = re_classroom.search(line)
+    if m:
+        classroom = m.group(0).strip()
 
-    # Subject is whatever remains after removing teacher and classroom
-    subject = cont
-    if teacher:
-        subject = subject.replace(teacher, '')
-    if classroom:
-        subject = subject.replace(classroom, '')
-    subject = subject.strip(' .,\n\t')
+    #extract teacher
+    m = re_teacher.search(line)
+    if m:
+        teacher = m.group(1).strip()
 
-    return subject, teacher, classroom
+    #extract subject & remove noise
+    working = line
 
+    #remove leading address/noise before the classroom
+    if re_classroom.search(working):
+        # Cut everything up to and including the classroom token
+        working = re_classroom.sub('|||CUT|||', working, count=1)
+        working = working.split('|||CUT|||')[-1]
+
+    working = re_teacher.sub('', working).strip()
+    working = re_noise.sub(' ', working).strip()
+    working = re.sub(r'\s{2,}', ' ', working).strip(' .,')
+
+    if working:
+        subject = working
+
+    return subject, teacher, classroom 
 
 def _build_from_table(data: list[list[str]], schedules: dict[str, WeekSchedule]) -> None:
     """
@@ -132,12 +158,14 @@ def _build_from_table(data: list[list[str]], schedules: dict[str, WeekSchedule])
                 continue
 
             class_name = data[0][j]
+            # print(row[j].replace("\n", " "))
             subject, teacher, classroom = _extract_lesson_content(row[j])
 
             lesson = Lesson(
                 subject=subject,
                 teacher=teacher,
                 classroom=classroom,
+                raw=row[j].replace("\n", " "),
                 isCancelled='отмена' in row[j].lower(),
             )
 
@@ -150,7 +178,6 @@ def _build_from_table(data: list[list[str]], schedules: dict[str, WeekSchedule])
                 schedules[class_name].days.append(day)
 
             day.lessons.append(lesson)
-
 
 def fill_missing_dates(schedules: dict[str, WeekSchedule]) -> None:
     """

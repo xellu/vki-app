@@ -1,5 +1,9 @@
 {
     "schedules": {
-        "pdfTemp": ".tmp"
+        "pdfTemp": ".tmp",
+        "updateInterval": 600    
+    },
+    "persist": {
+        "scheduleNextUpdate": 0
     }
 }

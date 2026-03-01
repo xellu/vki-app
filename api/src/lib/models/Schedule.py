@@ -1,6 +1,8 @@
-from dataclasses import dataclass, field
-from uuid import uuid4
+import re
 import datetime
+from enum import Enum
+from dataclasses import dataclass, field
+
 
 @dataclass
 class Lesson:
@@ -15,6 +17,7 @@ class Lesson:
     subject: str #e.g. "Matematika"
     teacher: str #pretty self explanatory
     classroom: str #where the lesson is taking place (e.g. "101")
+    raw: str #the raw extracted string from the PDF
 
     changes: dict = field(default_factory=dict)
     #"attribute": ["previous value", "new value"], for example:
@@ -24,9 +27,42 @@ class Lesson:
 
     isCancelled: bool = False
 
+    def get_abbreviation(self, subj: str = None) -> str:
+        subj = re.sub(r'-\s+', '-', (subj or self.subject).lower())
+        label = ""
+        if subj:
+            # for subject_key, abbreviation in sorted(subject_labels.items(), key=lambda x: len(x[0]), reverse=True):
+            #     key = subject_key.replace('..', '.').lower()
+            #     if key in subj or subj in key:
+            #         label = abbreviation
+            #         break
+            if not label:
+                for subject_key, abbreviation in subject_labels.items():
+                    if subject_key.replace('..', '.').lower() in subj:
+                        label = abbreviation
+        return label or ""
+
+    def simplify_subject(self) -> str:
+        subj = self.subject
+        for sugar in sorted(subject_bs, key=len, reverse=True):
+            subj = re.sub(re.escape(sugar), '', subj, flags=re.IGNORECASE)
+        subj = re.sub(r'\bПМ\.\d+\.?\b', '', subj, flags=re.IGNORECASE)
+        subj = re.sub(r'-\s+', '-', subj)
+        subj = re.sub(r'\s+', ' ', subj).strip()
+        return subj.capitalize()
+    
     def to_dict(self) -> dict:
+        if self.classroom.lower() == "физическая культура":
+            self.subject = self.classroom
+            self.classroom = ""
+        
+        name = self.simplify_subject()
+        abbreviation = self.get_abbreviation(name)
+
         return {
-            "subject": self.subject,
+            "short": abbreviation,
+            
+            "subject": name if name.upper() != "N/A" else "N/A",
             "teacher": self.teacher,
             "classroom": self.classroom,
             "changes": self.changes,
@@ -60,3 +96,114 @@ class WeekSchedule:
             "days": [d.to_dict() for d in self.days],
             "firstDay": first.timestamp() if first else None,
         }
+
+class SubjectType(Enum):
+    LAB = ""
+    PRACTICAL = ""
+    SEMINAR = ""
+    LESSON = ""
+    ONLINE_CLASS = ""
+
+# a 3 letter abbreviation (i.e. Операционные системы и среды -> ОСС, Математика -> МАТ)
+subject_labels = {
+    "История": "ИСТ",
+    "Математика": "МАТ",
+    "Физика": "ФИЗ",
+    "Русский язык": "РУС",
+    "Литература": "ЛИТ",
+    "Химия": "ХИМ",
+    "Биология": "БИО",
+    "География": "ГЕО",
+    "Прикладная": "ПМА",
+    "Информатика": "ИНФ",
+    "Обществознание": "ОБЩ",
+    "Робототехника": "РБТ",
+    "Системное программирование":"СПР",
+    "Разработка веб-ПРИЛОЖЕНИЙ": "РВП",
+    "Технология разработки п..о..": "ТРП",
+    "Инструментальные средства разработки ПО": "ИСР",
+    "Инструментальные средства разработки программного обеспечения": "ИСР",
+    "Техническое документоведение в профессиональной деятельности": "ТДД",
+    "СТАНДАРТИЗАЦИЯ, Сертификация и техническое документоведение": "ССД",
+    "Физическая культура": "ФКУ",
+    "Поддержка и тестирование программных модулей":"ПТМ",
+    "Разработка программных модулей": "ПТМ",
+    "Иностранный язык в проф..деятельности": "АНГ",
+    "Англ..язык в проф..деятельности": "АНГ",
+    "Иностранный язык в профессиональной деятельности": "АНГ",
+    "Экономика отрасли": "ЭОТ",
+    "Менеджмент в профессиональной деятельности": "МПД",
+    "Мененджмент в профессиональной деятельности": "МПД",
+    "Математическое моделирование": "ММО",
+    "Основы философии": "ОФИ",
+    "Основы безопасности и защиты Родины": "ОБЗ",
+    "Основы безопасности жизнедеятельности": "ОБЖ",
+    "Компьютерные сети": "КСТ",
+    "Операционные системы и среды": "ОСС",
+    "Информ..технологии": "ИТЕ",
+    "Безопасность жизнедеятельности": "БЖИ",
+    "Элементы высшей математики": "ВМА",
+    "Архитектура аппаратн..средств": "ААС",
+    "Основы алгоритм..И программ..": "ОЛП",
+    "Основы алгоритмизации и программирования": "ОЛП",
+    "Разработка программных модулей": "РПМ",
+    "Правовое обеспечение профессиональной деятельности": "ПОД",
+    "Правовое обеспечение проф..деятельности": "ПОД",
+    "Сопровождение и обслуживание П..О.. к..с..": "СОП",
+    "Разработка, администрирование и защита БД": "РБД",
+    "Технология разработки и защиты баз данных": "РБД",
+    "Технология разработки и защиты б..д..": "РБД",
+    "Основы проектиров. БД": "ОБД",
+    "Основы проектирования БД": "ОБД",
+    "Микропроцессорные системы": "МКС",
+    "Проектирование цифровых устройств": "ПЦУ",
+    "Настройка программного обеспечения сетевых устройств": "НПО",
+    "Сопровождение и обслуживание программного обеспечения КС": "СКС",
+    "Установка активных сетевых устройств": "УСУ",
+    "Дискретная математика": "ДМА",
+    "Техническое обслуживание и ремонт компьютерных систем и комплексов": "ТРК",
+    "Программирование мобильных устройств": "ПМУ",
+    "Обеспечение качества функционирования компьютерных систем":"ОФК",
+    "Основы электротехники и электронной техники": "ОЭТ",
+    "Аппатно программные интерфейсы микроконтроллерных систем": "АМС",
+    "Оператор электронно- вычислительных машин": "ОВМ",
+    "Внедрение и поддержка компьютерных систем": "ПКС",
+    "Психология общения": "ПОБ",
+    # "": "",
+    # "": "",
+    # "": "",
+    # "": "",
+    
+}
+
+subject_bs = [
+    "Ауд.",
+    "Ауд",
+    "Лаб.",
+    "Лаб",
+    "нгу",
+    "нгу ул. Пирогова 3",
+    ", ",
+    "Нгу кпа ауд",
+    "Лекция дистанционная",
+    "Лекция дистанционно",
+    "Лекция",
+    "Учебная практика",
+    "Семинар",
+    "отмена",
+    "преподаватель",
+    "Читальный зал",
+]
+
+subject_types = {
+    "семинар": SubjectType.SEMINAR,
+    "лекция дистанционно": SubjectType.ONLINE_CLASS,
+    "дист.. лекция": SubjectType.ONLINE_CLASS,
+    "дистанционно": SubjectType.ONLINE_CLASS,
+    "лекция": SubjectType.LESSON,
+    "произ..пр..": SubjectType.PRACTICAL,
+    "практ..занят..": SubjectType.PRACTICAL,
+    "Уч..Пр..": SubjectType.PRACTICAL,
+    r"КП\.": SubjectType.PRACTICAL,
+    r"\bлаб..": SubjectType.LAB,
+}
