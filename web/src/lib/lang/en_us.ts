@@ -6,12 +6,36 @@ export const en_us: LanguageOption = {
     model: {
         nav: {
             return: "Back",
+            login: "Log In",
+            logout: "Sign Out",
         },
         
+        errors: {
+            scheduleDownloadError: "Unable to download timetables",
+            scheduleParseError: "Failed to parse schedule",
+            scheduleDiffError: "Unable to get differences between timetables",
+            scheduleNetworkError: "Unable to get timetables from server",
+            needsAuth: "You need to be logged in to access this page",
+            unknownError: "Unknown Error",
+            cantGetSession: "Unable to get session token",
+            expiredSession: "Expired or invalid session",
+            missingFields: "Missing Fields",
+            invalidLogin: "Incorrect Credentials"
+        },
+
         home: {
             schedule: "Schedule",
             grades: "Grades",
-            absences: "Absences"
+            absences: "Absences",
+            settings: "Settings"
+        },
+
+        login: {
+            title: "Log In with your NSU Account",
+            email: "E-Mail",
+            password: "Password",
+            submit: "Sign In",
+            success: "You've been Signed in"
         },
 
         settings: {
@@ -19,6 +43,9 @@ export const en_us: LanguageOption = {
                 label: "App Settings",
                 language: "Language",
                 darkMode: "Dark Mode"
+            },
+            userSettings: {
+                label: "Account Settings",
             },
             appInfo: {
                 label: "About Application"
@@ -36,6 +63,19 @@ export const en_us: LanguageOption = {
 
                 youWereAbsent: "You were absent on this day.",
                 youWerePresent: "You were present on this day.",
+            }
+        },
+
+        schedule: {
+            day: "Day",
+            dayAbbreviations: {
+                monday: "Mon",
+                tuesday: "Tue",
+                wednesday: "Wed",
+                thursday: "Thu",
+                friday: "Fri",
+                saturday: "Sat",
+                sunday: "Sun"
             }
         }
     }

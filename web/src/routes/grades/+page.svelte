@@ -6,6 +6,7 @@
     import { messageStore } from "$lib/stores/LanguageStore";
     import type { LanguageModel } from "$lib/models/Language";
     import { en_us } from "$lib/lang/en_us";
+  import NeedsAuth from "$lib/components/NeedsAuth.svelte";
 
     let messages: LanguageModel = en_us.model; //yeah we love typescript
 
@@ -13,74 +14,7 @@
         messages = value;
     });
     
-    const subjects: GradeSubject[] = [
-        {
-            name: "Математика",
-            grades: [
-                {
-                    date: "13.09.2025",
-                    type: null,
-                    was_absent: false,
-
-                    grade: "4",
-                    value: 4,
-
-                    description: "Производная произведения, производная частного"
-                },
-                {
-                    date: "27.09.2025",
-                    type: null,
-                    was_absent: false,
-
-                    grade: "2",
-                    value: 2,
-
-                    description: "Проверочная работа. Производная"
-                },
-                {
-                    date: "04.10.2025",
-                    type: null,
-                    was_absent: true,
-
-                    grade: "5",
-                    value: 5,
-
-                    description: "Возрастание и убывание графика функции. Экстремумы функции"
-                },
-                {
-                    date: "18.10.2025",
-                    type: "КН",
-                    was_absent: false,
-
-                    grade: "3",
-                    value: 3,
-
-                    description: "Контрольная неделя"
-                },
-                {
-                    date: "04.12.2025",
-                    type: null,
-                    was_absent: true,
-
-                    grade: "",
-                    value: 0,
-
-                    description: "Контрольная работа. Интеграл"
-                },
-                {
-                    date: "12.12.2025",
-                    type: "ЭКЗ",
-                    was_absent: false,
-
-                    grade: "2",
-                    value: 2,
-
-                    description: ""
-                },
-                
-            ]
-        }
-    ]
+    const subjects: GradeSubject[] = []
 
     const GradeColors: any = {
         0: "text-error-100-900",
@@ -107,14 +41,21 @@
     }
 </script>
 
+<svelte:head>
+    <title>My Grades | VKI Portal</title>
+</svelte:head>
+
+<NeedsAuth>
+
 <div class="flex flex-col w-screen h-screen">
-    <div class="p-3">
-        <a href="/" title={messages.nav.return}>
+    <div class="p-3 flex w-full justify-between">
+        <a href="/" title={messages.nav.return} class="text-primary-600-400">
             <button class="btn p-0 flex items-center justify-center gap-3 pr-5">
                 <span class="material-symbols-sharp">keyboard_backspace</span>
                 <p class="text-sm">{messages.nav.return}</p>
             </button>
         </a>
+        <p class="test-sm">{messages.home.grades}</p>
     </div>
     <div class="grow overflow-y-scroll flex flex-col gap-3 p-3">
         {#each subjects as sub}
@@ -150,6 +91,8 @@
         {/each}
     </div>
 </div>
+
+</NeedsAuth>
 
 <PopUp
     title = {messages.grades.about.title}

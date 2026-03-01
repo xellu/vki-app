@@ -7,12 +7,36 @@ export type LanguageOption = {
 export type LanguageModel = {
     nav: {
         return: string,
+        login: string,
+        logout: string,
+    },
+
+    errors: {
+        scheduleDownloadError: string,
+        scheduleParseError: string,
+        scheduleDiffError: string,
+        scheduleNetworkError: string,
+        needsAuth: string,
+        unknownError: string,
+        cantGetSession: string,
+        expiredSession: string,
+        missingFields: string,
+        invalidLogin: string,
     },
 
     home: {
         schedule: string,
         grades: string,
         absences: string,
+        settings: string
+    }
+
+    login: {
+        title: string,
+        email: string,
+        password: string,
+        submit: string,
+        success: string,
     }
 
     settings: {
@@ -21,6 +45,9 @@ export type LanguageModel = {
             language: string,
             darkMode: string,
         },
+        userSettings: {
+            label: string,
+        }
         appInfo: {
             label: string
         }
@@ -37,6 +64,19 @@ export type LanguageModel = {
 
             youWereAbsent: string,
             youWerePresent: string
+        }
+    },
+
+    schedule: {
+        day: string,
+        dayAbbreviations: {
+            monday: string,
+            tuesday: string,
+            wednesday: string,
+            thursday: string,
+            friday: string,
+            saturday: string,
+            sunday: string
         }
     }
 }

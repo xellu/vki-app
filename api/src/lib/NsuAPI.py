@@ -8,6 +8,7 @@ from .models.Grade import GradeEntry, SubjectGrades, Year
 
 from nautica.services.logger import LogManager
 from nautica.services.database.xeldb import XelDB
+from src.lib.Language import Messages
 
 NSU_BASE = "https://cab.nsu.ru"
 
@@ -54,12 +55,46 @@ class NsuAPI:
         r2 = session.post(form["action"], data={"username": email, "password": password})
         session.close()
 
-        if "Invalid username or password" in r2.text:
-            return None, "Invalid credentials"
+        # if "Invalid username or password" in r2.text:
+        #     return None, "Invalid credentials"
         if not r2.cookies.get("PHPSESSID"):
-            return None, "Unable to parse session cookie"
+            return None, Messages.NSUAPI_INVALID_LOGIN.value
 
         return r2.cookies, None
+
+    def get_profile(self) -> tuple[str, None]:
+        """
+        Retrieves legal name and class/group from cab.nsu.ru
+        
+        Returns
+            (name, None) None on failure
+            (group, None)
+        """
+        
+        session = requests.Session()
+        session.headers.update(_header_gen(country="ru"))
+
+        r = self._session.get(f"{NSU_BASE}/user/profile")
+        if not r.ok:
+            raise NsuAPIError("Unable to fetch profile")
+        
+        #find name paragraph
+        bs = BeautifulSoup(r.text, "html.parser")
+        name_p = bs.find("p", class_="name")
+        group_p = bs.find_all("p")
+        
+        name = name_p.get_text().strip() if name_p else None
+        group = None
+        
+        for p in group_p:
+            if "Группа:" in p.get_text():
+                group = p.get_text()
+
+        if group:
+            group = group.strip().replace("Группа: В", "")
+
+        return name, group
+
 
     #ORDERS------------------------------------------------------------------
     

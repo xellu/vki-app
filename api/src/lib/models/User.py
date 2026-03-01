@@ -9,10 +9,16 @@ def UserModel():
         "password": "", #encrypted password from cab.nsu.ru
         
         "name": "", #first and last name pulled from, you guessed it, cab.nsu
-        "timetable": "", #configured schedule timetable
-        
-        "cabNsuCookie": "",
-        
+        "group": "", #the class a person is from
+
+        #user preferences
+        "settings": {
+            "timetable": None, #str/null, preferred time table to show.
+            #              ^ if None, it'll default to "group" attribute
+            
+            "langId": "ru_ru", #default app language
+        },
+                
         "inbox": [ #notifications
             # {
             #     "title": "Notification Label",
@@ -33,7 +39,6 @@ def SanitizeUser(user: dict):
     
     BLACKLIST = [
         "password",
-        "cabNsuCookie"
     ]
     
     if not type(user) == dict:

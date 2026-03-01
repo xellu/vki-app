@@ -15,6 +15,8 @@ from src.lib.Language import Messages
 ScheduleDB = XelDB("schedule", primary_key="className")
 logger = LogManager("Lib.Schedule")
 
+#TODO: switch from PDFs to https://table-ci.nsu.ru/ or use a hybrid model
+
 class ScheduleManager:
     def __init__(self):
         self.update_period = Config("vki")["schedules.updateInterval"]
@@ -55,7 +57,7 @@ class ScheduleManager:
                 logger.ok(f"Downloaded {len(walkPath(Config('vki')['schedules.pdfTemp']))-1} PDFs, took {time.time()-start:.1f}s")
             except Exception as err:
                 logger.trace(err)
-                self.error = Messages.SCHEDULE_DOWNLOAD_ERROR
+                self.error = Messages.SCHEDULE_DOWNLOAD_ERROR.value
                 continue
                 
             try:
@@ -71,17 +73,17 @@ class ScheduleManager:
                     for k, v in schedule.items():
                         out[k] = v
                 
-                logger.ok(f"Extracted {len(out.keys())} schedules for classes, took {time.time()-start:.1f}s")
+                logger.ok(f"Extracted timetables for {len(out.keys())} classes, took {time.time()-start:.1f}s")
             except Exception as err:
                 logger.trace(err)
-                self.error = Messages.SCHEDULE_PARSING_ERROR
+                self.error = Messages.SCHEDULE_PARSING_ERROR.value
                 continue
                 
             try:
                 self.create_diff(out)
             except Exception as err:
                 logger.trace(err)
-                self.error = Messages.SCHEDULE_DIFF_GEN_ERROR
+                self.error = Messages.SCHEDULE_DIFF_GEN_ERROR.value
                 continue
             
             self.last_update = time.time() 

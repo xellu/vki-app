@@ -5,34 +5,77 @@ export const ru_ru: LanguageOption = {
     label: "Русский",
     model: {
         nav: {
-            return: "Назад",
+            return: "Back",
+            login: "Log In",
+            logout: "Sign Out",
         },
         
+        errors: {
+            scheduleDownloadError: "Unable to download timetables",
+            scheduleParseError: "Failed to parse schedule",
+            scheduleDiffError: "Unable to get differences between timetables",
+            scheduleNetworkError: "bs",
+            needsAuth: "You need to be logged in to access this page",
+            unknownError: "Unknown Error",
+            cantGetSession: "Unable to get session token",
+            expiredSession: "Expired or invalid session",
+            missingFields: "Missing Fields",
+            invalidLogin: "Invalid Login"
+        },
+
         home: {
-            schedule: "Расписание",
-            grades: "Оценки",
-            absences: "Пропуски"
+            schedule: "Schedule",
+            grades: "Grades",
+            absences: "Absences",
+            settings: "Settings"
+        },
+
+        login: {
+            title: "Log In with your NSU Account",
+            email: "E-Mail",
+            password: "Password",
+            submit: "Sign In",
+            success: "Welcome to VKI Portal"
         },
 
         settings: {
             appSettings: {
-                label: "Настройки приложения",
-                language: "Язык",
-                darkMode: "Тёмная тема"
+                label: "App Settings",
+                language: "Language",
+                darkMode: "Dark Mode"
+            },
+            userSettings: {
+                label: "Account Settings",
+            },
+            appInfo: {
+                label: "About Application"
             }
         },
 
         grades: {
-            noGrades: "По этому предмету пока нет оценок",
+            noGrades: "You don't have any grades for this subject",
             about: {
-                title: "Об оценке",
-                date: "Дата",
-                type: "Тип",
-                grade: "Оценка",
-                notes: "Комментарий",
+                title: "About Grade",
+                date: "Date",
+                type: "Type",
+                grade: "Grade",
+                notes: "Additional Notes",
 
-                youWereAbsent: "В этот день вы отсутствовали.",
-                youWerePresent: "В этот день вы присутствовали.",
+                youWereAbsent: "You were absent on this day.",
+                youWerePresent: "You were present on this day.",
+            }
+        },
+
+        schedule: {
+            day: "Day",
+            dayAbbreviations: {
+                monday: "Mon",
+                tuesday: "Tue",
+                wednesday: "Wed",
+                thursday: "Thu",
+                friday: "Fri",
+                saturday: "Sat",
+                sunday: "Sun"
             }
         }
     }

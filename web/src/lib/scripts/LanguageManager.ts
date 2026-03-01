@@ -53,4 +53,24 @@ function loadLanguage() {
     languageStore.set(getActiveLanguageObj().id);
 }
 
-export { languages, loadLanguage, getActiveLanguage, setActiveLanguage, getActiveLanguageObj };
+function parseString(text: string): string {
+    const model = getActiveLanguage();
+    const keys = text.split('.');
+    let value: unknown = model;
+
+    for (const key of keys) {
+        if (value && typeof value === 'object' && key in value) {
+            value = (value as Record<string, unknown>)[key];
+        } else {
+            console.warn(`parseString: key "${text}" not found in language model`);
+            return text;
+        }
+    }
+
+    if (typeof value === 'string') return value;
+
+    console.warn(`parseString: key "${text}" does not resolve to a string`);
+    return text;
+}
+
+export { languages, loadLanguage, getActiveLanguage, setActiveLanguage, getActiveLanguageObj, parseString };

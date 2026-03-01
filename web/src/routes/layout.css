@@ -11,6 +11,14 @@
 
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
+.debug {
+	border: 1px solid red;
+}
+
+.debug * {
+	border: 1px solid pink;
+}
+
 [data-theme='vki-app'] {
 	--text-scaling: 1.067;
 	--base-font-color: var(--color-surface-900);
