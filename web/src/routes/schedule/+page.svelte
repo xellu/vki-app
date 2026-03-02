@@ -54,6 +54,15 @@
         const date = new Date(timestamp)
         return `${date.getUTCDate()}.${date.getMonth()}.`
     }
+
+    function getSubclassSiblings(_selected: string) {
+        const base = _selected.slice(0, -1);
+        const suffix = _selected.at(-1);
+        
+        if (!/\d/.test(suffix)) return [_selected];
+        
+        return [base + "1", base + "2"];
+    }
 </script>
 
 <svelte:head>
@@ -73,37 +82,54 @@
         <p class="test-sm">{messages.home.schedule}</p>
     </div>
     <div class="grow overflow-y-scroll flex flex-col gap-1 p-3">
-        <select class="select btn-sm" bind:value={selected}>
-            {#each timetables as t}
-                <option>{t.className}</option>
-            {/each}
-        </select>
+        
+
+        <div class="flex mb-2">
+            <button
+                class="btn btn-sm {selected == getSubclassSiblings(selected)[0] ? 'preset-filled-primary-500' : 'preset-filled-surface-100-900'} rounded-r-none w-1/4 max-w-32 grow"
+                onclick={() => { selected = getSubclassSiblings(selected)[0] }}
+            >
+                {getSubclassSiblings(selected)[0]}
+            </button>
+            <button
+                class="btn btn-sm {selected == getSubclassSiblings(selected)[1] ? 'preset-filled-primary-500' : 'preset-filled-surface-100-900'} rounded-l-none w-1/4 max-w-32 grow"
+                onclick={() => { selected = getSubclassSiblings(selected)[1] }}
+            >
+                {getSubclassSiblings(selected)[1]}
+            </button>
+
+            <select class="select btn-sm ml-3 max-w-lg w-1/3 grow" bind:value={selected}>
+                {#each timetables as t}
+                    <option>{t.className}</option>
+                {/each}
+            </select>    
+        </div>
 
         {#each timetables as tt}
             {#if tt.className == selected}
             
-            <div class="overflow-x-scroll pb-2">
+            <div class="overflow-x-scroll pb-2 max-w-3xl">
                 <div class="grid"
                     style="grid-template-columns: auto repeat(5, 8rem)">
                     
                     <!-- labels -->
-                    <div class="rounded-tl-2xl bg-surface-100-900 px-3 text-center text-sm text-surface-600-400 flex items-center justify-center">
+                    <div class="rounded-tl-lg bg-surface-100-900 px-3 min-w-24 text-center text-sm text-surface-600-400 flex items-center justify-center">
                         {tt.className}</div>
                     {#each [['9:00 - 9:45','9:50 - 10:35'], ['10:45 - 11:30','11:35 - 12:20'], ['13:00 - 13:45','13:50 - 14:35'], ['14:45 - 15:30','15:35 - 16:20'], ['16:30 - 17:15','17:20 - 18:05']] as [t1, t2], i}
-                        <div class="bg-surface-100-900 text-xs px-3 py-2 flex items-center whitespace-nowrap {i == 4 ? 'rounded-tr-2xl' : ''}">
+                        <div class="bg-surface-100-900 text-xs px-3 py-2 flex items-center whitespace-nowrap {i == 4 ? 'rounded-tr-lg' : ''}">
                             <p class="w-full text-center">{t1} <br> {t2}</p>
                         </div>
                     {/each}
 
                     <!-- monday -->
                     {#each tt.days as day, dayIndex}
-                        <div class="bg-surface-100-900 flex flex-col gap-1 items-center justify-center {dayIndex == tt.days.length-1 ? 'rounded-bl-2xl' : ''}">
+                        <div class="bg-surface-100-900 flex flex-col gap-1 items-center justify-center {dayIndex == tt.days.length-1 ? 'rounded-bl-lg' : ''}">
                             <p class="font-semibold px-3">{dayNames[dayIndex]}</p>
                             <p class="text-xs">{getDate((tt.firstDay+86400*(dayIndex+1))*1000)}</p>
                         </div>
 
                         {#each day.lessons as lesson, lessonIndex}
-                        <div class="bg-surface-100-900/50 h-20 {dayIndex < tt.days.length-1 ? 'border-b border-surface-100-900' : ''}">
+                        <div class="bg-surface-100-900/50 h-20 border-b border-surface-100-900">
                             <div class="h-full {lessonIndex > 0 ? 'border-r' : 'border-x'} {Object.keys(lesson.changes).length > 0 || lesson.isCancelled
                                 ? 'bg-error-500/20'
                                 : ''} border-surface-100-900 p-1"
@@ -132,7 +158,7 @@
                         {/each}
 
                         {#each createArr(5-day.lessons.length)}
-                            <div class="bg-surface-100-900/50 h-20 {dayIndex}">
+                            <div class="bg-surface-100-900/50 h-20 border-b border-surface-100-900">
                                 <div class="h-full border-r border-surface-100-900 p-1"></div>
                             </div>
                         {/each}
