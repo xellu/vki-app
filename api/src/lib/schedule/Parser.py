@@ -204,45 +204,49 @@ def fill_missing_dates(schedules: dict[str, WeekSchedule]) -> None:
 
 
 def parse_schedule_from_pdf(path: str) -> dict[str, WeekSchedule]:
-    tm = time.perf_counter()
+    try:
+        tm = time.perf_counter()
 
-    # These numeric parameters sometimes need re-calibration when the PDF layout changes
-    tables = camelot.read_pdf(
-        path, pages='all',
-        copy_text=['h', 'v'],
-        line_scale=55, joint_tol=12, line_tol=12,
-        backend=ConversionBackend()
-    )
+        # These numeric parameters sometimes need re-calibration when the PDF layout changes
+        tables = camelot.read_pdf(
+            path, pages='all',
+            copy_text=['h', 'v'],
+            line_scale=55, joint_tol=12, line_tol=12,
+            backend=ConversionBackend()
+        )
 
-    schedules: dict[str, WeekSchedule] = {}
+        schedules: dict[str, WeekSchedule] = {}
 
-    for table in tables:
-        data: list[list[str]] = table.df.values.tolist()
+        for table in tables:
+            data: list[list[str]] = table.df.values.tolist()
 
-        # Skip the "September 1st" special event table
-        if 'время' in data[0]: continue
+            # Skip the "September 1st" special event table
+            if 'время' in data[0]: continue
 
-        # Some PDFs omit the lesson-number column entirely - insert a blank one if so
-        if not (data[0][1] == '' or '№' in data[0][1]):
-            for row in data:
-                row.insert(1, '')
-
-        # Remove duplicate adjacent columns (camelot artifact from merged cells)
-        # NOTE: if you see duplicate class names in the output, tune line_scale above
-        i = 2
-        while i < len(data[0]):
-            if data[0][i - 1] == data[0][i]:
+            # Some PDFs omit the lesson-number column entirely - insert a blank one if so
+            if not (data[0][1] == '' or '№' in data[0][1]):
                 for row in data:
-                    row.pop(i)
-            else:
-                i += 1
+                    row.insert(1, '')
 
-        # Fix the lesson-number cell for the first data row (1 SPO layout quirk)
-        data[1][1] = data[1][1].split('\n')[-1]
+            # Remove duplicate adjacent columns (camelot artifact from merged cells)
+            # NOTE: if you see duplicate class names in the output, tune line_scale above
+            i = 2
+            while i < len(data[0]):
+                if data[0][i - 1] == data[0][i]:
+                    for row in data:
+                        row.pop(i)
+                else:
+                    i += 1
 
-        _build_from_table(data, schedules)
+            # Fix the lesson-number cell for the first data row (1 SPO layout quirk)
+            data[1][1] = data[1][1].split('\n')[-1]
 
-    fill_missing_dates(schedules)
+            _build_from_table(data, schedules)
 
-    logger.debug(f'Parsing time for {path}: {time.perf_counter() - tm:.2f}s')
-    return schedules
+        fill_missing_dates(schedules)
+
+        logger.debug(f'Parsing time for {path}: {time.perf_counter() - tm:.2f}s')
+        return schedules
+    except Exception as e:
+        logger.trace(e)
+    return {}

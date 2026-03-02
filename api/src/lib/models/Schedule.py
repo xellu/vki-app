@@ -3,6 +3,14 @@ import datetime
 from enum import Enum
 from dataclasses import dataclass, field
 
+from src.lib.Utils import delete_spaces
+
+class SubjectType(Enum):
+    LAB = "LAB"
+    PRACTICAL = "PRACTICAL"
+    SEMINAR = "SEMINAR"
+    LESSON = "LESSON"
+    ONLINE_CLASS = "ONLINE_CLASS"
 
 @dataclass
 class Lesson:
@@ -51,20 +59,56 @@ class Lesson:
         subj = re.sub(r'\s+', ' ', subj).strip()
         return subj.capitalize()
     
+    def get_type(self) -> SubjectType:
+        subj_type = SubjectType.SEMINAR
+        for x, _type in subject_types.items():
+            # print(f"{x.lower()} in {self.raw.lower()} = {(x.lower() in self.raw.lower())}")
+            if x.lower() in self.raw.lower():
+                subj_type = _type
+        return subj_type
+    
+    def get_classroom(self):
+        if self.classroom.lower() == "n/a": return self.classroom
+        
+        cr = self.classroom.lower()
+        cr = cr.replace("ауд. ", ""
+                ).replace("ауд.", ""
+                ).replace("ауд", ""
+                ).strip()
+        
+        if "НГУ" in self.raw.upper():
+            return f"{cr} (НГУ)"
+        return cr    
+            
+    def get_teacher(self):
+        if self.teacher.lower() == "n/a": return self.teacher
+        
+        if len(delete_spaces(self.teacher).split(" ")) == 2:
+            return self.teacher
+        
+        t = delete_spaces(self.teacher).split(" ")
+        out = t.pop(0) + " "
+        for name in t:
+            out += f"{list(name)[0]}."
+        return out
+    
     def to_dict(self) -> dict:
         if self.classroom.lower() == "физическая культура":
             self.subject = self.classroom
             self.classroom = ""
         
-        name = self.simplify_subject()
+        name = self.simplify_subject()    
         abbreviation = self.get_abbreviation(name)
-
+    
         return {
             "short": abbreviation,
+            "type": self.get_type().value,
             
             "subject": name if name.upper() != "N/A" else "N/A",
-            "teacher": self.teacher,
-            "classroom": self.classroom,
+            "teacher": self.get_teacher(),
+            "classroom": self.get_classroom(),
+            "raw": self.raw,
+            
             "changes": self.changes,
             "isCancelled": self.isCancelled,
         }
@@ -97,13 +141,6 @@ class WeekSchedule:
             "firstDay": first.timestamp() if first else None,
         }
 
-class SubjectType(Enum):
-    LAB = ""
-    PRACTICAL = ""
-    SEMINAR = ""
-    LESSON = ""
-    ONLINE_CLASS = ""
-
 # a 3 letter abbreviation (i.e. Операционные системы и среды -> ОСС, Математика -> МАТ)
 subject_labels = {
     "История": "ИСТ",
@@ -116,6 +153,7 @@ subject_labels = {
     "География": "ГЕО",
     "Прикладная": "ПМА",
     "Информатика": "ИНФ",
+    "ИНФОРМАТИКЕ": "ИНФ",
     "Обществознание": "ОБЩ",
     "Робототехника": "РБТ",
     "Системное программирование":"СПР",
@@ -162,6 +200,8 @@ subject_labels = {
     "Установка активных сетевых устройств": "УСУ",
     "Дискретная математика": "ДМА",
     "Техническое обслуживание и ремонт компьютерных систем и комплексов": "ТРК",
+    "техническое обслуживание и ремонт ксик": "ТРК",
+    "Техническое обслуживание и ремонт аппаратной части ксик": "ТРК",
     "Программирование мобильных устройств": "ПМУ",
     "Обеспечение качества функционирования компьютерных систем":"ОФК",
     "Основы электротехники и электронной техники": "ОЭТ",
@@ -196,14 +236,25 @@ subject_bs = [
 ]
 
 subject_types = {
-    "семинар": SubjectType.SEMINAR,
-    "лекция дистанционно": SubjectType.ONLINE_CLASS,
-    "дист.. лекция": SubjectType.ONLINE_CLASS,
-    "дистанционно": SubjectType.ONLINE_CLASS,
-    "лекция": SubjectType.LESSON,
-    "произ..пр..": SubjectType.PRACTICAL,
-    "практ..занят..": SubjectType.PRACTICAL,
-    "Уч..Пр..": SubjectType.PRACTICAL,
-    r"КП\.": SubjectType.PRACTICAL,
-    r"\bлаб..": SubjectType.LAB,
+    # "семинар": SubjectType.SEMINAR,
+    # "лекция дистанционно": SubjectType.ONLINE_CLASS,
+    # "дист.. лекция": SubjectType.ONLINE_CLASS,
+    # "дистанционно": SubjectType.ONLINE_CLASS,
+    # "лекция": SubjectType.LESSON,
+    # "произ..пр..": SubjectType.PRACTICAL,
+    # "практ..занят..": SubjectType.PRACTICAL,
+    # "Уч..Пр..": SubjectType.PRACTICAL,
+    # r"КП\.": SubjectType.PRACTICAL,
+    # r"\bлаб..": SubjectType.LAB,
+    "НГУ": SubjectType.LESSON,
+    "Лекция": SubjectType.LESSON,
+    "дистанционно": SubjectType.ONLINE_CLASS, 
+    
+    "Семинар": SubjectType.SEMINAR,
+    
+    "Лаб": SubjectType.LAB,
+    
+    "ПРАКТИКУМ": SubjectType.PRACTICAL,
+    "Практическое": SubjectType.PRACTICAL,
+    "практика": SubjectType.PRACTICAL,
 }

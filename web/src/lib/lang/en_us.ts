@@ -76,6 +76,13 @@ export const en_us: LanguageOption = {
                 friday: "Fri",
                 saturday: "Sat",
                 sunday: "Sun"
+            },
+            lessonTypes: {
+                LAB: "Labs",
+                PRACTICAL: "Practical",
+                SEMINAR: "Seminar",
+                LESSON: "Lesson",
+                ONLINE_CLASS: "Online"       
             }
         }
     }

@@ -15,7 +15,7 @@ NSU_BASE = "https://cab.nsu.ru"
 logger = LogManager("Lib.NsuAPI")
 _header_gen = HeaderGenerator()
 
-YearsDB = XelDB("nsu-years", primary_key="key")
+YearsDB = XelDB("NsuAPI-Cache1", primary_key="key")
 
 
 class NsuAPIError(Exception):

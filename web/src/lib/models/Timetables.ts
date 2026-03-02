@@ -1,10 +1,14 @@
 export type Lesson = {
+    short: string,
     subject: string,
     teacher: string,
     classroom: string,
     raw: string,
 
+    type: "LAB" | "PRACTICAL" | "SEMINAR" | "LESSON" | "ONLINE_CLASS" 
+
     changes: {
+        short: string[],
         subject: string[],
         teacher: string[],
         classroom: string[],

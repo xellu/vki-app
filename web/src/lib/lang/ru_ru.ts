@@ -5,77 +5,78 @@ export const ru_ru: LanguageOption = {
     label: "Русский",
     model: {
         nav: {
-            return: "Back",
-            login: "Log In",
-            logout: "Sign Out",
+            return: "Назад",
+            login: "Войти",
+            logout: "Выйти",
         },
         
         errors: {
-            scheduleDownloadError: "Unable to download timetables",
-            scheduleParseError: "Failed to parse schedule",
-            scheduleDiffError: "Unable to get differences between timetables",
-            scheduleNetworkError: "bs",
-            needsAuth: "You need to be logged in to access this page",
-            unknownError: "Unknown Error",
-            cantGetSession: "Unable to get session token",
-            expiredSession: "Expired or invalid session",
-            missingFields: "Missing Fields",
-            invalidLogin: "Invalid Login"
+            scheduleDownloadError: "Не удалось загрузить расписание",
+            scheduleParseError: "Ошибка при обработке расписания",
+            scheduleDiffError: "Не удалось получить изменения в расписании",
+            scheduleNetworkError: "Не удалось получить расписание с сервера",
+            needsAuth: "Нужно войти в аккаунт, чтобы открыть эту страницу",
+            unknownError: "Неизвестная ошибка",
+            cantGetSession: "Не удалось получить токен сессии",
+            expiredSession: "Сессия истекла или недействительна",
+            missingFields: "Заполните все поля",
+            invalidLogin: "Неверный логин или пароль"
         },
-
         home: {
-            schedule: "Schedule",
-            grades: "Grades",
-            absences: "Absences",
-            settings: "Settings"
+            schedule: "Расписание",
+            grades: "Оценки",
+            absences: "Пропуски",
+            settings: "Настройки"
         },
-
         login: {
-            title: "Log In with your NSU Account",
-            email: "E-Mail",
-            password: "Password",
-            submit: "Sign In",
-            success: "Welcome to VKI Portal"
+            title: "Войдите через аккаунт НСУ",
+            email: "Электронная почта",
+            password: "Пароль",
+            submit: "Войти",
+            success: "Вы успешно вошли"
         },
-
         settings: {
             appSettings: {
-                label: "App Settings",
-                language: "Language",
-                darkMode: "Dark Mode"
+                label: "Настройки приложения",
+                language: "Язык",
+                darkMode: "Тёмная тема"
             },
             userSettings: {
-                label: "Account Settings",
+                label: "Настройки аккаунта",
             },
             appInfo: {
-                label: "About Application"
+                label: "О приложении"
             }
         },
-
         grades: {
-            noGrades: "You don't have any grades for this subject",
+            noGrades: "По этому предмету оценок пока нет",
             about: {
-                title: "About Grade",
-                date: "Date",
-                type: "Type",
-                grade: "Grade",
-                notes: "Additional Notes",
-
-                youWereAbsent: "You were absent on this day.",
-                youWerePresent: "You were present on this day.",
+                title: "Об оценке",
+                date: "Дата",
+                type: "Тип",
+                grade: "Оценка",
+                notes: "Доп. заметки",
+                youWereAbsent: "В этот день вас не было.",
+                youWerePresent: "В этот день вы присутствовали.",
             }
         },
-
         schedule: {
-            day: "Day",
+            day: "День",
             dayAbbreviations: {
-                monday: "Mon",
-                tuesday: "Tue",
-                wednesday: "Wed",
-                thursday: "Thu",
-                friday: "Fri",
-                saturday: "Sat",
-                sunday: "Sun"
+                monday: "Пн",
+                tuesday: "Вт",
+                wednesday: "Ср",
+                thursday: "Чт",
+                friday: "Пт",
+                saturday: "Сб",
+                sunday: "Вс"
+            },
+            lessonTypes: {
+                LAB: "Лаба",
+                PRACTICAL: "Практика",
+                SEMINAR: "Семинар",
+                LESSON: "Лекция",
+                ONLINE_CLASS: "Дистант"       
             }
         }
     }

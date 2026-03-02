@@ -77,6 +77,13 @@ export type LanguageModel = {
             friday: string,
             saturday: string,
             sunday: string
+        },
+        lessonTypes: {
+            LAB: string,
+            PRACTICAL: string,
+            SEMINAR: string,
+            LESSON: string,
+            ONLINE_CLASS: string       
         }
     }
 }
