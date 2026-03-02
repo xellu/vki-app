@@ -1,5 +1,5 @@
 websockets<11
-pymongo["srv"]
+pymongo[srv]
 colorama
 requests
 fastapi
