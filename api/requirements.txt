@@ -7,3 +7,6 @@ python-multipart
 uvicorn
 cryptography
 pymupdf_layout
+camelot
+bs4
+random_header_generator
