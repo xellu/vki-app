@@ -25,7 +25,7 @@
 </script>
 
 {#if open && loaded}
-    <div class="w-screen h-screen p-3 fixed top-0 left-0 flex items-center justify-center bg-black/50 z-50"
+    <div class="w-screen h-screen p-3 fixed top-0 left-0 flex items-center justify-center bg-surface-50-950/50 backdrop-blur-xl z-50"
         onclick={(e) => {
             // console.log(e)
             if (e.target === self && !preventClose) open = false;
@@ -35,7 +35,7 @@
         in:fade={{duration: 100}} out:fade={{duration: 300}}>
 
         <!-- form -->
-        <div class="card preset-filled-surface-100-900 w-full z-50 {maxW ? maxW : ''}" transition:scale={{duration: 250}}>
+        <div class="card preset-filled-surface-50-950 w-full z-50 {maxW ? maxW : ''}" transition:scale={{duration: 250}}>
             
             <!-- header -->
             <div class="flex justify-between items-center select-none w-full card variant-filled-surface p-3 gap-10 {headerCss}">

@@ -77,7 +77,12 @@ export const ru_ru: LanguageOption = {
                 SEMINAR: "Семинар",
                 LESSON: "Лекция",
                 ONLINE_CLASS: "Дистант"       
-            }
+            },
+            
+            subject: "Предмет",
+            teacher: "Преподаватель",
+            classroom: "Аудитория",
+            isCancelled: "Это занятие отменено"
         }
     }
 }

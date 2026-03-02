@@ -84,6 +84,11 @@ export type LanguageModel = {
             SEMINAR: string,
             LESSON: string,
             ONLINE_CLASS: string       
-        }
+        },
+        
+        subject: string,
+        teacher: string,
+        classroom: string,
+        isCancelled: string,
     }
 }

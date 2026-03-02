@@ -8,11 +8,11 @@ export type Lesson = {
     type: "LAB" | "PRACTICAL" | "SEMINAR" | "LESSON" | "ONLINE_CLASS" 
 
     changes: {
-        short: string[],
-        subject: string[],
-        teacher: string[],
-        classroom: string[],
-        raw: string[]
+        short?: string[], //["old_value", "new_value"]
+        subject?: string[],
+        teacher?: string[],
+        classroom?: string[],
+        raw?: string[]
     }
 
     isCancelled: boolean

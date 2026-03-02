@@ -83,7 +83,12 @@ export const en_us: LanguageOption = {
                 SEMINAR: "Seminar",
                 LESSON: "Lesson",
                 ONLINE_CLASS: "Online"       
-            }
+            },
+
+            subject: "Subject",
+            teacher: "Professor",
+            classroom: "Classroom",
+            isCancelled: "This class is cancelled"
         }
     }
 }

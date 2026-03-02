@@ -1,8 +1,9 @@
 <script lang="ts">
+    import PopUp from "$lib/components/PopUp.svelte";
     import NeedsAuth from "$lib/components/NeedsAuth.svelte";
     import { onMount } from "svelte";
 
-    import type { WeekSchedule } from "$lib/models/Timetables";
+    import type { Lesson, WeekSchedule } from "$lib/models/Timetables";
     import { Account, type Profile } from "$lib/scripts/Auth";
 
     import { messageStore } from "$lib/stores/LanguageStore";
@@ -57,11 +58,16 @@
 
     function getSubclassSiblings(_selected: string) {
         const base = _selected.slice(0, -1);
-        const suffix = _selected.at(-1);
+        const suffix = _selected.at(-1) as string;
         
         if (!/\d/.test(suffix)) return [_selected];
         
         return [base + "1", base + "2"];
+    }
+
+    let lessonInfo: {open: boolean, lesson: null | Lesson} = {
+        open: false,
+        lesson: null
     }
 </script>
 
@@ -98,7 +104,9 @@
                 {getSubclassSiblings(selected)[1]}
             </button>
 
-            <select class="select btn-sm ml-3 max-w-lg w-1/3 grow" bind:value={selected}>
+            <div class="w-1/4 md:hidden grow"></div>
+
+            <select class="select btn-sm ml-3 max-w-lg w-1/4 grow" bind:value={selected}>
                 {#each timetables as t}
                     <option>{t.className}</option>
                 {/each}
@@ -135,23 +143,32 @@
                                 : ''} border-surface-100-900 p-1"
                             >
                             {#if lesson.raw.length > 2}
-                                <div class="flex flex-col justify-between items-center gap-1 h-full">
-                                <div class="flex justify-between w-full">
-                                    <p class="text-[9px] text-ellipsis">
-                                        {messages.schedule.lessonTypes[lesson.type] || messages.schedule.lessonTypes.SEMINAR}
-                                    </p>
+                                <!-- class cell -->
+                            
+                                <button
+                                    class="flex flex-col justify-between items-center gap-1 w-full h-full {lesson.isCancelled ? 'opacity-0' : ''}"
+                                    onclick={() => {
+                                        lessonInfo.lesson = lesson;
+                                        lessonInfo.open = true;
+                                    }}    
+                                >
+                                    <div class="flex justify-between w-full">
+                                        <p class="text-[9px] text-ellipsis">
+                                            {messages.schedule.lessonTypes[lesson.type] || messages.schedule.lessonTypes.SEMINAR}
+                                        </p>
 
-                                    <p class="{lesson.classroom == 'n/a' ? 'opacity-0' : ''} text-xs">
-                                        {lesson.classroom.includes("дистанционно") ? "MTS Link" : lesson.classroom}
+                                        <p class="{lesson.classroom == 'n/a' ? 'opacity-0' : ''} text-xs {Object.keys(lesson.changes).includes('classroom') ? 'text-error-500' : ''}">
+                                            {lesson.classroom.includes("дистанционно") || lesson.classroom.includes("дистанционная") ? "MTS Link" : lesson.classroom}
+                                        </p>
+                                    </div>
+
+                                    <p class="{!lesson.short && lesson.subject == 'N/A' ? 'opacity-0' : ''} {Object.keys(lesson.changes).includes('short') ? 'text-error-500' : ''}">
+                                        {lesson.short || "N/A"}
                                     </p>
-                                </div>
-                                <p class="{!lesson.short && lesson.subject == 'N/A' ? 'opacity-0' : ''}">
-                                    {lesson.short || "N/A"}
-                                </p>
-                                <p class="{!lesson.teacher ? 'opacity-0' : ''} text-[9px] whitespace-nowrap text-left w-full">
-                                    {lesson.teacher || "N/A"}
-                                </p>
-                                </div>
+                                    <p class="{!lesson.teacher ? 'opacity-0' : ''} text-[9px] whitespace-nowrap text-left w-full {Object.keys(lesson.changes).includes('teacher') ? 'text-error-500' : ''}">
+                                        {lesson.teacher || "N/A"}
+                                    </p>
+                                </button>
                             {/if}
                             </div>
                         </div>
@@ -174,3 +191,51 @@
 </div>
 
 </NeedsAuth>
+
+<PopUp
+    title = {lessonInfo.lesson?.subject || "N/A"}
+    bind:open = {lessonInfo.open}
+>
+    <p class="text-xs text-surface-600-400 -mt-5">{lessonInfo.lesson?.raw}</p>
+
+    {#if lessonInfo.lesson?.isCancelled}
+        <div class="text-error-600-400 mt-5 flex gap-2 items-center">
+            <span class="material-symbols-sharp">error</span>
+            <p>{messages.schedule.isCancelled}</p>
+        </div>
+    {/if}
+
+    <p class="mt-5">
+        <span class="font-semibold">{messages.schedule.subject}:</span>
+        {#if (lessonInfo.lesson?.changes.subject?.length ?? 0) >= 2}
+            <span class="line-through text-error-600-400 text-sm">{lessonInfo.lesson?.changes.subject?.[0]}</span>
+            <span class="material-symbols-sharp text-xs align-middle">arrow_forward</span>
+            <span class="text-sm">{lessonInfo.lesson?.changes.subject?.[1]}</span>
+        {:else}
+            {lessonInfo.lesson?.subject}
+        {/if}
+    </p>
+    <p>
+        <span class="font-semibold">{messages.schedule.classroom}:</span>
+        {#if (lessonInfo.lesson?.changes.classroom?.length ?? 0) >= 2}
+            <span class="line-through text-error-600-400 text-sm">{lessonInfo.lesson?.changes.classroom?.[0]}</span>
+            <span class="material-symbols-sharp text-xs align-middle">arrow_forward</span>
+            <span class="text-sm">{lessonInfo.lesson?.changes.classroom?.[1]}</span>
+        {:else}
+            {lessonInfo.lesson?.classroom}
+        {/if}
+    </p>
+
+    <p class="mt-3">
+        <span class="font-semibold">{messages.schedule.teacher}:</span>
+        {#if (lessonInfo.lesson?.changes.teacher?.length ?? 0) >= 2}
+            <span class="line-through text-error-600-400 text-sm">{lessonInfo.lesson?.changes.teacher?.[0]}</span>
+            <span class="material-symbols-sharp text-xs align-middle">arrow_forward</span>
+            <span class="text-sm">{lessonInfo.lesson?.changes.teacher?.[1]}</span>
+        {:else}
+            {lessonInfo.lesson?.teacher}
+        {/if}
+    </p>
+    
+
+</PopUp>

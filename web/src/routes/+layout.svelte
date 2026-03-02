@@ -39,6 +39,8 @@
 		"keyboard_backspace",
 		"close",
 		"settings",
+		"error",
+		"arrow_forward",
 
 	].toSorted();
 </script>
