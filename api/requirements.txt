@@ -7,6 +7,6 @@ python-multipart
 uvicorn
 cryptography
 pymupdf_layout
-camelot
+git+https://github.com/camelot-dev/camelot.git
 bs4
 random_header_generator
