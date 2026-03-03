@@ -55,7 +55,9 @@ async def grades(ctx: Context):
     latest_sem = await api.get_latest_semester()
     serialized = [g.to_dict() for g in grades]
 
-    GradesCache.create(userId=f"{user.uid}_sem{semester}", semester=semester, grades=serialized, fetchedAt=time.time())
+    userKey = f"{user.uid}_sem{semester}"
+    if not GradesCache.getByKey(userKey):
+        GradesCache.create(userId=userKey, semester=semester, grades=serialized, fetchedAt=time.time())
 
     latest_key = f"{user.uid}_latest"
     if GradesCache.getByKey(latest_key):
