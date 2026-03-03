@@ -39,11 +39,11 @@
             <h1 class="h6 text-primary-500">VKI Plus</h1>
         </div>
 
-        <div class="grow flex items-center justify-center flex-wrap gap-3 md:gap-10">
+        <div class="grow flex items-center justify-center flex-wrap gap-3 md:gap-10 select-none">
             {#each PAGES as p}
-                <a href="{p.url}" title={messages.home[p.label]}>
+                <a href="{p.url}" title={messages.home[p.label]} draggable="false">
                     <div class="flex flex-col gap-1 items-center justify-center">
-                        <img src="{p.image}" alt="" class="w-24 md:w-32">
+                        <img src="{p.image}" alt="" class="w-24 md:w-32" draggable="false">
                         <p class="text-sm font-semibold">{messages.home[p.label]}</p>
                     </div>
                 </a>
@@ -53,7 +53,10 @@
     </div>
     <!-- bottom bar -->
     <div class="flex items-center justify-between fixed bottom-0 w-full px-2">
-        <p class="text-xs">Made by <a href="https://github.com/xellu" class="underline" target="_blank">Xellu</a></p>
+        <div class="flex items-center gap-3">
+            <img src="/assets/flag-cz.svg" alt="" class="rounded-md h-6 select-none" draggable="false">
+            <p class="text-xs">Made by <a href="https://github.com/xellu" class="underline" target="_blank">Xellu</a></p>
+        </div>
 
         <a href="/settings">
             <span class="material-symbols-sharp">settings</span>
