@@ -1,4 +1,5 @@
 import time
+import json
 from threading import Thread
 
 from nautica.api import Eventer, Config
@@ -149,6 +150,37 @@ def on_shutdown(reason: str = None):
     Schedules.stop()
     
     
-@ShellCommand("schedule.clearcd", "Updates the schedule instantly", "schedule.clearcd")
+@ShellCommand("schedule.update", "Updates the schedule from remote", "schedule.update")
 def reset_schedule_cooldown(*args, **kwargs):
     Schedules.next_update = 0
+    
+@ShellCommand("schedule.dump", "Dumps lesson data from all schedules into a file", "schedule.dump <subject/teacher/classroom/*>")
+def dump_schedule_data(field, *args, **kwargs):
+    out = []
+    if field in ["subject", "teacher", "classroom", "*"]:
+        for _, classId in ScheduleDB.data_keyed.items():
+            week = ScheduleDB.getById(classId)
+            for day in week.get("days", []):
+                for lesson in day.get("lessons", []):
+                    #handle full lesson dump
+                    if field == "*":
+                        out.append(lesson)
+                        continue
+                    
+                    #handle field dump
+                    value = lesson.get(field)
+                    if str(value).lower() == "n/a" or not value: continue #skip empty values 
+                    
+                    if kwargs.get("noduplicates") and value in out: continue
+                    out.append(value)
+                    
+        
+        logger.ok(f"Exported data for {len(out)} lessons across {len(ScheduleDB.data_keyed.keys())} classes")
+        
+        if field == "*":
+            open("dump.txt", "w", encoding="utf-8").write(json.dumps(out, indent=4, ensure_ascii=False))
+            return
+        
+        open("dump.txt", "w", encoding="utf-8").write("\n".join(out))
+        return
+    logger.warn(f"Unknown field, available: subject, teacher, classroom, *")

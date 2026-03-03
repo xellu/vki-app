@@ -137,7 +137,7 @@
                         </div>
 
                         {#each day.lessons as lesson, lessonIndex}
-                        <div class="bg-surface-100-900/50 h-20 border-b border-surface-100-900">
+                        <div class="h-20 border-b border-surface-100-900 {lesson.raw.length > 2 ? 'bg-surface-100-900/50' : 'bg-surface-100-900/25'}">
                             <div class="h-full {lessonIndex > 0 ? 'border-r' : 'border-x'} {Object.keys(lesson.changes).length > 0 || lesson.isCancelled
                                 ? 'bg-error-500/20'
                                 : ''} border-surface-100-900 p-1"
@@ -175,7 +175,7 @@
                         {/each}
 
                         {#each createArr(5-day.lessons.length)}
-                            <div class="bg-surface-100-900/50 h-20 border-b border-surface-100-900">
+                            <div class="bg-surface-100-900/25 h-20 border-b border-surface-100-900">
                                 <div class="h-full border-r border-surface-100-900 p-1"></div>
                             </div>
                         {/each}

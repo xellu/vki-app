@@ -5,8 +5,8 @@ import camelot
 import pymupdf
 
 from nautica.services.logger import LogManager
-from nautica.api import Config
 
+from src.lib.Utils import extract_digits
 from src.lib.models.Schedule import WeekSchedule, DaySchedule, Lesson
 
 logger = LogManager("Lib.Schedule")
@@ -136,8 +136,11 @@ def _build_from_table(data: list[list[str]], schedules: dict[str, WeekSchedule])
     for i in range(1, len(data)):
         row = data[i]
 
-        if '\n' in row[1]:
-            raise SyntaxError('Incorrect lesson index')
+        # if '\n' in row[1]:
+        #     raise SyntaxError('Incorrect lesson index')
+        row[1] = extract_digits(row[1])
+        if not row[1]:
+            continue
 
         is_half = row[1].endswith('.5')
         day_name = row[0]
