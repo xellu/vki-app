@@ -33,7 +33,7 @@
 </svelte:head>
 
 <NeedsAuth>
-    <div class="flex flex-col w-screen h-screen p-3 pb-1">
+    <div class="flex flex-col w-screen h-[90vh] p-3">
         <div class="flex items-center gap-3 select-none">
             <img src="/favicon.svg" alt="" class="h-12" draggable="false">
             <h1 class="h6 text-primary-500">VKI Plus</h1>
@@ -50,13 +50,13 @@
             {/each}
         </div>
 
-        <!-- bottom bar -->
-        <div class="flex items-center justify-between">
-            <p class="text-xs">Made by <a href="https://github.com/xellu" class="underline" target="_blank">Xellu</a></p>
+    </div>
+    <!-- bottom bar -->
+    <div class="flex items-center justify-between fixed bottom-0 w-full px-2">
+        <p class="text-xs">Made by <a href="https://github.com/xellu" class="underline" target="_blank">Xellu</a></p>
 
-            <a href="/settings">
-                <span class="material-symbols-sharp">settings</span>
-            </a>
-        </div>
+        <a href="/settings">
+            <span class="material-symbols-sharp">settings</span>
+        </a>
     </div>
 </NeedsAuth>
