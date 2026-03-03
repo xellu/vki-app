@@ -67,3 +67,16 @@ async def grades(ctx: Context):
 
     return JSONResponse(content={"grades": serialized, "update_in": interval if semester == latest_sem else None})
 
+@Request.GET()
+async def last_semester(ctx: Context):
+    auth = Authenticate(ctx).cookie()
+    if not auth.ok: return Error(auth.error), 401
+
+    user = auth.getUser()
+    cookies, error = await NsuAPI.login(user.get("email"), user.decrypt_password())
+    if error:
+        return Error(error), 500
+    
+    api = NsuAPI(cookies)
+    last = api.get_latest_semester()
+    return Reply(last=last)
