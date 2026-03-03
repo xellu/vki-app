@@ -68,6 +68,9 @@ class Lesson:
         return subj_type
     
     def get_classroom(self):
+        if "читальный зал" in delete_spaces(self.raw).lower():
+            return "Чит. Зал"
+        
         if self.classroom.lower() == "n/a": return self.classroom
         
         cr = self.classroom.lower()

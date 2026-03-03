@@ -1,0 +1,40 @@
+{
+    "framework": {
+        "devMode": true,
+        "preloadConfigs": true,
+        "disableCacheFiles": false,
+        "systemd": false
+    },
+    "servers": {
+        "http": {
+            "enabled": true,
+            "host": "0.0.0.0",
+            "port": 8100,
+            "realIPHeader": null,
+            "allowSchemeRequests": true
+        },
+        "ws": {
+            "enabled": false,
+            "host": "0.0.0.0",
+            "port": 8300
+        }
+    },
+    "services": {
+        "config": {
+            "auth": "auth.template.json",
+            "vki": "vki.template.json"
+        },
+        "remoteAccess": {
+            "enabled": false,
+            "accessKeys": [],
+            "host": "0.0.0.0",
+            "port": 0
+        },
+        "sessions": {
+            "enabled": true
+        },
+        "database": {
+            "mongoUri": "mongodb connection string here"
+        }
+    }
+}

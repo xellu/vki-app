@@ -10,3 +10,4 @@ pymupdf_layout
 git+https://github.com/camelot-dev/camelot.git
 bs4
 random_header_generator
+git+https://github.com/xellu/nautica-api.git

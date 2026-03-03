@@ -154,10 +154,10 @@ def on_shutdown(reason: str = None):
 def reset_schedule_cooldown(*args, **kwargs):
     Schedules.next_update = 0
     
-@ShellCommand("schedule.dump", "Dumps lesson data from all schedules into a file", "schedule.dump <subject/teacher/classroom/*>")
+@ShellCommand("schedule.dump", "Dumps lesson data from all schedules into a file", "schedule.dump <subject/teacher/classroom/raw/*>")
 def dump_schedule_data(field, *args, **kwargs):
     out = []
-    if field in ["subject", "teacher", "classroom", "*"]:
+    if field in ["subject", "teacher", "classroom", "raw", "*"]:
         for _, classId in ScheduleDB.data_keyed.items():
             week = ScheduleDB.getById(classId)
             for day in week.get("days", []):
@@ -183,4 +183,4 @@ def dump_schedule_data(field, *args, **kwargs):
         
         open("dump.txt", "w", encoding="utf-8").write("\n".join(out))
         return
-    logger.warn(f"Unknown field, available: subject, teacher, classroom, *")
+    logger.warn(f"Unknown field, available: subject, teacher, classroom, raw, *")

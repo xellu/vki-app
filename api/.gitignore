@@ -13,6 +13,7 @@ __pycache__/
 .tmp/
 src/tests
 nsutest.py
+dump.txt
 
 # Distribution / packaging
 .Python
