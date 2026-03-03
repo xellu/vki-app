@@ -156,8 +156,6 @@ async function LogIn(email: string, password: string): Promise<AuthStateType> {
             return res;
         }
 
-        document.cookie = `session=${session}; path=/`;
-
         const res = await Authenticate();
         
         AuthState.set(res.state);

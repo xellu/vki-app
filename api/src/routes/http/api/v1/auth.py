@@ -45,7 +45,7 @@ async def login(ctx: Context):
     )
     
     r = JSONResponse(content={"session": sessionId})
-    r.set_cookie("session", sessionId)
+    r.set_cookie("session", sessionId, max_age=60*60*24*365)
     return r
 
 @Request.POST() #apparently POST instead of GET prevents caching issues????

@@ -133,7 +133,7 @@
                     {#each tt.days as day, dayIndex}
                         <div class="bg-surface-100-900 flex flex-col gap-1 items-center justify-center {dayIndex == tt.days.length-1 ? 'rounded-bl-lg' : ''}">
                             <p class="font-semibold px-3">{dayNames[dayIndex]}</p>
-                            <p class="text-xs">{getDate((tt.firstDay+86400*(dayIndex+1))*1000)}</p>
+                            <p class="text-xs">{getDate((tt.firstDay+86400*(dayIndex))*1000)}</p>
                         </div>
 
                         {#each day.lessons as lesson, lessonIndex}
