@@ -28,7 +28,7 @@
 </style>
 
 <svelte:head>
-    <title>Settings | VKI Portal</title>
+    <title>Settings | VKI Plus</title>
 </svelte:head>
 
 <NeedsAuth>

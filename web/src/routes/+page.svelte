@@ -7,9 +7,7 @@
 
     let messages: LanguageModel | any = en_us.model; //yeah we love typescript
 
-    messageStore.subscribe((value) => {
-        messages = value;
-    });
+    messageStore.subscribe((value) => { messages = value; });
 
     const PAGES = [
         {
@@ -31,14 +29,16 @@
 </script>
 
 <svelte:head>
-    <title>VKI Portal</title>
+    <title>VKI Plus</title>
 </svelte:head>
 
 <NeedsAuth>
-    <div class="flex flex-col w-screen h-screen p-3 py-1">
-        <div class="flex items-center gap-3">
-            <h1 class="h6 text-primary-500">VKI Portal</h1>
+    <div class="flex flex-col w-screen h-screen p-3 pb-1">
+        <div class="flex items-center gap-3 select-none">
+            <img src="/favicon.svg" alt="" class="h-12" draggable="false">
+            <h1 class="h6 text-primary-500">VKI Plus</h1>
         </div>
+
         <div class="grow flex items-center justify-center flex-wrap gap-3 md:gap-10">
             {#each PAGES as p}
                 <a href="{p.url}" title={messages.home[p.label]}>

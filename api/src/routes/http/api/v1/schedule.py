@@ -9,11 +9,6 @@ from nautica.api.http import (
 )
 
 from src.lib.schedule.Runner import Schedules, ScheduleDB
-
-from nautica.ext.utils import walkPath
-from nautica.api import Config
-import os
-
 from nautica.services.logger import LogManager
 
 logger = LogManager("Routes.Http.Schedule")

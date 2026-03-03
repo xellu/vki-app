@@ -27,12 +27,12 @@
 {/if}
 
 <svelte:head>
-    <title>Sign In | VKI Portal</title>
+    <title>Sign In | VKI Plus</title>
 </svelte:head>
 
 <div class="flex flex-col w-screen h-screen p-3 py-1">
     <div class="flex items-center gap-3">
-        <h1 class="h6 text-primary-500">VKI Portal</h1>
+        <h1 class="h6 text-primary-500">VKI Plus</h1>
     </div>
     <div class="grow flex items-center justify-center">
         <div class="card preset-filled-surface-100-900 p-3">

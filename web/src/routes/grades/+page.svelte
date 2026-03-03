@@ -42,7 +42,7 @@
 </script>
 
 <svelte:head>
-    <title>My Grades | VKI Portal</title>
+    <title>My Grades | VKI Plus</title>
 </svelte:head>
 
 <NeedsAuth>

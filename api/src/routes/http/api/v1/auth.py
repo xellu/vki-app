@@ -21,7 +21,7 @@ async def login(ctx: Context):
     user = UserManager(email=ctx.body["email"])
     
     #check if cab.nsu.ru login is valid
-    cookies, error = NsuAPI.login(ctx.body["email"], ctx.body["password"])
+    cookies, error = await NsuAPI.login(ctx.body["email"], ctx.body["password"])
     if error:
         return Error(error), 403
     
@@ -37,6 +37,10 @@ async def login(ctx: Context):
         if group: user.user["group"] = group
         if name or group:
             user.update()
+    
+    if ctx.body["password"] != user.decrypt_password(): #update password, if a user changed it
+        user.user["password"] = user.encrypt_password(ctx.body["password"])
+        user.update()
     
     #create session    
     sessionId = Sessions.create(

@@ -72,7 +72,7 @@
 </script>
 
 <svelte:head>
-    <title>My Schedule | VKI Portal</title>
+    <title>My Schedule | VKI Plus</title>
 </svelte:head>
 
 

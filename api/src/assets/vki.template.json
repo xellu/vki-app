@@ -3,6 +3,10 @@
         "pdfTemp": ".tmp",
         "updateInterval": 600    
     },
+    "grades": {
+        "updateInterval": 600,
+        "maxConcurrentRequests": 5
+    },
     "persist": {
         "scheduleNextUpdate": 0
     }

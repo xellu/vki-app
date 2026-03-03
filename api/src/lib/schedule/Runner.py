@@ -13,7 +13,7 @@ from src.lib.schedule.Networking import download_timetables
 from src.lib.schedule.Parser import parse_schedule_from_pdf
 from src.lib.Language import Messages
 
-ScheduleDB = XelDB("schedule", primary_key="className")
+ScheduleDB = XelDB("Cache-Schedule", primary_key="className")
 logger = LogManager("Lib.Schedule")
 
 #TODO: switch from PDFs to https://table-ci.nsu.ru/ or use a hybrid model
