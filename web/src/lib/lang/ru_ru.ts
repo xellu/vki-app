@@ -15,19 +15,22 @@ export const ru_ru: LanguageOption = {
             scheduleParseError: "Ошибка при обработке расписания",
             scheduleDiffError: "Не удалось получить изменения в расписании",
             scheduleNetworkError: "Не удалось получить расписание с сервера",
-            needsAuth: "Нужно войти в аккаунт, чтобы открыть эту страницу",
+            needsAuth: "Войдите в аккаунт, чтобы продолжить",
             unknownError: "Неизвестная ошибка",
             cantGetSession: "Не удалось получить токен сессии",
-            expiredSession: "Сессия истекла или недействительна",
+            expiredSession: "Сессия устарела или недействительна",
             missingFields: "Заполните все поля",
-            invalidLogin: "Неверный логин или пароль"
+            invalidLogin: "Неверный логин или пароль",
+            networkError: "Ошибка сети"
         },
+
         home: {
             schedule: "Расписание",
             grades: "Оценки",
             absences: "Пропуски",
             settings: "Настройки"
         },
+
         login: {
             title: "Войдите через аккаунт НСУ",
             email: "Электронная почта",
@@ -35,6 +38,7 @@ export const ru_ru: LanguageOption = {
             submit: "Войти",
             success: "Вы успешно вошли"
         },
+
         settings: {
             appSettings: {
                 label: "Настройки приложения",
@@ -48,18 +52,21 @@ export const ru_ru: LanguageOption = {
                 label: "О приложении"
             }
         },
+
         grades: {
             noGrades: "По этому предмету оценок пока нет",
             about: {
-                title: "Об оценке",
+                title: "Об Оценке",
                 date: "Дата",
                 type: "Тип",
                 grade: "Оценка",
                 notes: "Доп. заметки",
                 youWereAbsent: "В этот день вас не было.",
                 youWerePresent: "В этот день вы присутствовали.",
-            }
+            },
+            semester: "Семестер",
         },
+        
         schedule: {
             day: "День",
             dayAbbreviations: {
@@ -83,6 +90,14 @@ export const ru_ru: LanguageOption = {
             teacher: "Преподаватель",
             classroom: "Аудитория",
             isCancelled: "Это занятие отменено"
+        },
+
+        absences: {
+            absences: "Пропусков",    
+            noAbsences: "Прогулов нет, так и держись",
+            about: {
+                title: "О Пропуске",
+            }
         }
     }
 }

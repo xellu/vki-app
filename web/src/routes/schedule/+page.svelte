@@ -11,7 +11,7 @@
     import { en_us } from "$lib/lang/en_us";
 
     import { toaster } from "$lib/scripts/Toaster";
-    import { parseString } from "$lib/scripts/LanguageManager";
+    import { createArr } from "$lib/scripts/Util";
 
     export let data: { timetables: WeekSchedule[], scheduleError: string | null };
 
@@ -31,7 +31,7 @@
             toaster.error({ description: messages.errors[data.scheduleError] });
         }
 
-        console.log(timetables);
+        // console.log(timetables);
     });
 
     let dayNames = [
@@ -43,13 +43,6 @@
         messages.schedule.dayAbbreviations.saturday,
         messages.schedule.dayAbbreviations.sunday
     ]
-
-    function createArr(len: number) {
-        let arr: null[] = [];
-
-        for (let i = 0; i < len; i++) { arr.push(null); }
-        return arr;
-    }
 
     function getDate(timestamp: number) {
         const date = new Date(timestamp)

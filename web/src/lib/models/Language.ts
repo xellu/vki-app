@@ -22,6 +22,7 @@ export type LanguageModel = {
         expiredSession: string,
         missingFields: string,
         invalidLogin: string,
+        networkError: string,
     },
 
     home: {
@@ -64,7 +65,8 @@ export type LanguageModel = {
 
             youWereAbsent: string,
             youWerePresent: string
-        }
+        },
+        semester: string,
     },
 
     schedule: {
@@ -90,5 +92,14 @@ export type LanguageModel = {
         teacher: string,
         classroom: string,
         isCancelled: string,
+    },
+
+    absences: {
+        absences: string,
+        noAbsences: string,
+        about: {
+            title: string,
+            //the rest it gets from grades.about; no reason to have duplicates
+        }
     }
 }

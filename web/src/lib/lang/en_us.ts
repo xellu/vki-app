@@ -20,7 +20,8 @@ export const en_us: LanguageOption = {
             cantGetSession: "Unable to get session token",
             expiredSession: "Expired or invalid session",
             missingFields: "Missing Fields",
-            invalidLogin: "Incorrect Credentials"
+            invalidLogin: "Incorrect Credentials",
+            networkError: "Unstable connection"
         },
 
         home: {
@@ -63,7 +64,8 @@ export const en_us: LanguageOption = {
 
                 youWereAbsent: "You were absent on this day.",
                 youWerePresent: "You were present on this day.",
-            }
+            },
+            semester: "Semester",
         },
 
         schedule: {
@@ -89,6 +91,14 @@ export const en_us: LanguageOption = {
             teacher: "Professor",
             classroom: "Classroom",
             isCancelled: "This class is cancelled"
-        }
+        },
+
+        absences: {
+            absences: "Absences",
+            noAbsences: "No absences on record. Good work!",
+            about: {
+                title: "About an absence",
+            }
+        },
     }
 }
