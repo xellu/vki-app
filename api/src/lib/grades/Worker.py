@@ -52,13 +52,14 @@ class GradesWorker:
         logger.info(f"Refreshing grades for {len(users)} users...")
         semaphore = asyncio.Semaphore(Config("vki")["grades.maxConcurrentRequests"])
 
+        start = time.time()
         results = await asyncio.gather(
             *[self._fetch_user(u, semaphore) for u in users],
             return_exceptions=True,
         )
 
         ok = sum(1 for r in results if r is True)
-        logger.ok(f"Grades refresh done: {ok}/{len(users)} succeeded")
+        logger.ok(f"Grades refresh done: {ok}/{len(users)} succeeded, took {time.time()-start:.2f}s")
 
     async def _fetch_user(self, user_doc: dict, semaphore: asyncio.Semaphore) -> bool:
         async with semaphore:

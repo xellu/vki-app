@@ -18,8 +18,8 @@ NSU_BASE = "https://cab.nsu.ru"
 logger = LogManager("Lib.NsuAPI")
 _header_gen = HeaderGenerator()
 
-YearsDB = XelDB("Cache-NsuAPI", primary_key="key")
-
+YearsDB = XelDB("Cache-NsuAPI1", primary_key="key")
+# CookiesDB = XelDB("Cache-NsuAPI2", primary_key="email")
 
 class NsuAPIError(Exception):
     pass
@@ -36,7 +36,7 @@ class NsuAPI:
         self._cookies = dict(cookies)
         self._headers = dict(headers)
 
-        self._years: dict[str, Year] | None = None  # in-memory layer on top of XelDB
+        self._years: dict[str, Year] | None = None  #in-memory layer on top of XelDB
 
     #AUTH------------------------------------------------------------------
 

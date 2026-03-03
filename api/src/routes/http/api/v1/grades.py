@@ -64,3 +64,4 @@ async def grades(ctx: Context):
         GradesCache.create(userId=latest_key, semester=latest_sem)
 
     return JSONResponse(content={"grades": serialized, "update_in": interval if semester == latest_sem else None})
+
