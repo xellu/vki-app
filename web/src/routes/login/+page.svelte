@@ -40,7 +40,7 @@
 
             <form>
                 <p class="text-xs">{messages.login.email}</p>
-                <input type="text" class="input" placeholder="d.obolkin@g.nsu.ru" bind:value={email}>
+                <input type="email" class="input" placeholder="d.obolkin@g.nsu.ru" bind:value={email}>
 
                 <p class="mt-3">{messages.login.password}</p>
                 <input type="password" class="input" bind:value={password}>
