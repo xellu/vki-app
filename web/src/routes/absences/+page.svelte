@@ -92,8 +92,8 @@
                 <div class="flex justify-between">
                     <p class="font-semibold overflow-hidden text-ellipsis whitespace-nowrap">{sub.name}</p>
                     <p class="text-lg px-1 font-bold whitespace-nowrap
-                        {((getAbsenceGrades(sub.grades).length/sub.grades.length)*100) > 30 ? 
-                        ( ((getAbsenceGrades(sub.grades).length/sub.grades.length)*100) > 50 ? 'text-error-500' : 'text-warning-500' )
+                        {((getAbsenceGrades(sub.grades).length/sub.grades.length)*100) >= 30 ? 
+                        ( ((getAbsenceGrades(sub.grades).length/sub.grades.length)*100) >= 50 ? 'text-error-500' : 'text-warning-500' )
                         : 'text-surface-700-300'}">
                         {((getAbsenceGrades(sub.grades).length/sub.grades.length)*100).toFixed(0)}% <span class="text-xs">{messages.absences.absences}</span>
                     </p>
