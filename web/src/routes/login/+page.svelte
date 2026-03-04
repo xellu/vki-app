@@ -9,6 +9,8 @@
     import { messageStore } from "$lib/stores/LanguageStore";
     import type { LanguageModel } from "$lib/models/Language";
     import { en_us } from "$lib/lang/en_us";
+  
+    import { onMount } from "svelte";
 
     let messages: LanguageModel | any = en_us.model;
 
@@ -19,6 +21,13 @@
     let loading: boolean = false
     let email: string;
     let password: string;
+
+    onMount(() => {
+        const search = new URLSearchParams(window.location.search);
+        if (!search.has("email")) { return; }
+
+        email = search.get("email")
+    })
 </script>
 
 {#if loading}
@@ -51,9 +60,9 @@
                         }
                         loading = true;
                         const res = await LogIn(email, password);
-                        loading = false;
 
                         if (res.error) {
+                            loading = false;
                             return toaster.error({
                                 description: messages.errors[res.error] || res.error || messages.errors.unknownError
                             })
@@ -65,8 +74,10 @@
                             })
                             setTimeout(() => {
                                 window.location.href = "/"
-                            }, 1000)
+                            }, 1000);
+                            return;
                         }
+                        loading = false;
                     }}
                 >
                     {messages.login.submit}

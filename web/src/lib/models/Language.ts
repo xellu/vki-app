@@ -29,7 +29,9 @@ export type LanguageModel = {
         schedule: string,
         grades: string,
         absences: string,
-        settings: string
+        settings: string,
+
+        landingTitle: string,
     }
 
     login: {

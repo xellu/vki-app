@@ -28,7 +28,9 @@ export const ru_ru: LanguageOption = {
             schedule: "Расписание",
             grades: "Оценки",
             absences: "Пропуски",
-            settings: "Настройки"
+            settings: "Настройки",
+
+            landingTitle: "Твоё расписание, оценки и пропуски, в одном месте.",
         },
 
         login: {

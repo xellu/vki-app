@@ -28,7 +28,9 @@ export const en_us: LanguageOption = {
             schedule: "Schedule",
             grades: "Grades",
             absences: "Absences",
-            settings: "Settings"
+            settings: "Settings",
+
+            landingTitle: "Your schedule, grades and absences - All in one place",
         },
 
         login: {
