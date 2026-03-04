@@ -31,7 +31,7 @@ class NsuAPI:
 
         self._session = requests.Session()
         self._session.headers.update(headers)
-        self._session.cookies = cookies
+        self._session.cookies.update(cookies)
 
         self._cookies = dict(cookies)
         self._headers = dict(headers)
