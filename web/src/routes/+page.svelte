@@ -13,12 +13,12 @@
 
     import { languages, setActiveLanguage } from "$lib/scripts/LanguageManager";
 
-    let messages: LanguageModel | any = en_us.model; //yeah we love typescript
+    let messages: LanguageModel | any = $state(en_us.model); //yeah we love typescript
 
     messageStore.subscribe((value) => { messages = value; });
     import { AuthState, type AuthStateType } from "$lib/scripts/Auth";
 
-    let State: AuthStateType = {loading: true, loggedIn: false}
+    let State: AuthStateType = $state({loading: true, loggedIn: false})
 
     AuthState.subscribe((value) => { State = value; })
 
