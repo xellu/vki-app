@@ -12,6 +12,9 @@
   
 	let { children } = $props();
 
+	let canInstall = $state(false);
+    let deferredPrompt: any;
+
 	onMount(async () => {
 		//skeleton theme (light/dark) switch
 		document.documentElement.setAttribute('data-mode', localStorage.getItem('mode') || 'dark');
@@ -33,7 +36,26 @@
 				description: auth.state.error
 			})
         }
+
+		//pwa thingies
+		window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            canInstall = true;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            canInstall = false;
+        });
 	})
+
+	async function installPWA() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        canInstall = false;
+    }
 
 	const ICONS: string[] = [
 		"keyboard_backspace",
@@ -63,5 +85,7 @@
 		</Toast>
 	{/snippet}
 </Toast.Group>
+
+<p>canInstall: {canInstall}</p>
 
 {@render children()}

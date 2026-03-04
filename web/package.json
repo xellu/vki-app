@@ -20,6 +20,7 @@
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.1.18",
+		"@vite-pwa/sveltekit": "^1.1.0",
 		"svelte": "^5.51.0",
 		"svelte-check": "^4.3.6",
 		"tailwindcss": "^4.1.18",
@@ -28,6 +29,7 @@
 	},
 	"dependencies": {
 		"@sveltejs/adapter-node": "^5.5.4",
-		"animate.css": "^4.1.1"
+		"animate.css": "^4.1.1",
+		"dotenv": "^17.3.1"
 	}
 }
