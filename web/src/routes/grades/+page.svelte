@@ -2,6 +2,7 @@
     import PopUp from "$lib/components/PopUp.svelte";
     import NeedsAuth from "$lib/components/NeedsAuth.svelte";
     import Loader from "$lib/components/Loader.svelte";
+    import AppPage from "$lib/components/AppPage.svelte";
 
     import { onMount } from "svelte";
     import { slide } from "svelte/transition";
@@ -14,7 +15,7 @@
     import type { LanguageModel } from "$lib/models/Language";
     import { en_us } from "$lib/lang/en_us";
 
-    let messages: LanguageModel = en_us.model; //yeah we love typescript
+    let messages: LanguageModel | any = en_us.model; //yeah we love typescript
 
     messageStore.subscribe((value) => {
         messages = value;
@@ -89,16 +90,7 @@
 
 <NeedsAuth>
 
-<div class="flex flex-col w-screen h-screen">
-    <div class="p-3 flex w-full justify-between">
-        <a href="/" title={messages.nav.return} class="text-primary-600-400">
-            <button class="btn p-0 flex items-center justify-center gap-3 pr-5">
-                <span class="material-symbols-sharp">keyboard_backspace</span>
-                <p class="text-sm">{messages.nav.return}</p>
-            </button>
-        </a>
-        <p class="test-sm">{messages.home.grades}</p>
-    </div>
+<AppPage title={messages.home.grades}>
 
     <div class="flex gap-1 items-center px-3 pb-3">
         <p class="text-sm overflow-hidden text-ellipsis">{messages.grades.semester}:</p>
@@ -156,7 +148,7 @@
     </div>
 
     {/if}
-</div>
+</AppPage>
 
 </NeedsAuth>
 

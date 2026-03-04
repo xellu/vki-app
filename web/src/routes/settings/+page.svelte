@@ -1,6 +1,7 @@
 <script lang="ts">
-  import NeedsAuth from '$lib/components/NeedsAuth.svelte';
+    import NeedsAuth from '$lib/components/NeedsAuth.svelte';
 	import LightSwitch from '$lib/components/LightSwitch.svelte';
+    import AppPage from '$lib/components/AppPage.svelte';
 
     import { setActiveLanguage, languages } from '$lib/scripts/LanguageManager';
     import { LogOut } from '$lib/scripts/Auth';
@@ -32,16 +33,7 @@
 </svelte:head>
 
 <NeedsAuth>
-    <div class="flex flex-col w-screen h-screen">
-        <div class="p-3 flex w-full justify-between">
-            <a href="/" title={messages.nav.return} class="text-primary-600-400">
-                <button class="btn p-0 flex items-center justify-center gap-3 pr-5">
-                    <span class="material-symbols-sharp">keyboard_backspace</span>
-                    <p class="text-sm">{messages.nav.return}</p>
-                </button>
-            </a>
-            <p class="test-sm">{messages.home.settings}</p>
-        </div>
+    <AppPage title = {messages.home.settings}>
         <div class="grow overflow-y-scroll flex flex-col gap-1 p-3">
             <h1 class="h3">{messages.settings.appSettings.label}</h1>
             <div class="flex gap-3 items-center">
@@ -74,5 +66,5 @@
             </p>
             
         </div>
-    </div>
+    </AppPage>
 </NeedsAuth>

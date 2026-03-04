@@ -1,5 +1,6 @@
 <script lang="ts">
     import Loader from "$lib/components/Loader.svelte";
+    import AppPage from "$lib/components/AppPage.svelte";
 
     import { fade } from "svelte/transition";
     import { LogIn } from "$lib/scripts/Auth";
@@ -30,10 +31,7 @@
     <title>Sign In | VKI Plus</title>
 </svelte:head>
 
-<div class="flex flex-col w-screen h-screen p-3 py-1">
-    <div class="flex items-center gap-3">
-        <h1 class="h6 text-primary-500">VKI Plus</h1>
-    </div>
+<AppPage>
     <div class="grow flex items-center justify-center">
         <div class="card preset-filled-surface-100-900 p-3">
             <h2 class="font-semibold text-black dark:text-white mb-10">{messages.login.title}</h2>
@@ -77,4 +75,4 @@
             
         </div>
     </div>
-</div>
+</AppPage>

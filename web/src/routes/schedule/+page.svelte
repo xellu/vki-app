@@ -1,6 +1,8 @@
 <script lang="ts">
     import PopUp from "$lib/components/PopUp.svelte";
     import NeedsAuth from "$lib/components/NeedsAuth.svelte";
+    import AppPage from "$lib/components/AppPage.svelte";
+
     import { onMount } from "svelte";
 
     import type { Lesson, WeekSchedule } from "$lib/models/Timetables";
@@ -15,7 +17,7 @@
 
     export let data: { timetables: WeekSchedule[], scheduleError: string | null };
 
-    let messages: LanguageModel = en_us.model;
+    let messages: LanguageModel | any = en_us.model;
     let User: Profile | null = null;
 
     messageStore.subscribe((value) => { 
@@ -70,19 +72,8 @@
 
 
 <NeedsAuth>
-<div class="flex flex-col w-screen h-screen">
-    <div class="p-3 flex w-full justify-between">
-        <a href="/" title={messages.nav.return} class="text-primary-600-400">
-            <button class="btn p-0 flex items-center justify-center gap-3 pr-5">
-                <span class="material-symbols-sharp">keyboard_backspace</span>
-                <p class="text-sm">{messages.nav.return}</p>
-            </button>
-        </a>
-        <p class="test-sm">{messages.home.schedule}</p>
-    </div>
+<AppPage title={messages.home.schedule}>
     <div class="grow overflow-y-scroll flex flex-col gap-1 p-3">
-        
-
         <div class="flex mb-2">
             <button
                 class="btn btn-sm {selected == getSubclassSiblings(selected)[0] ? 'preset-filled-primary-500' : 'preset-filled-surface-100-900'} rounded-r-none w-1/4 max-w-32 grow"
@@ -124,16 +115,17 @@
 
                     <!-- monday -->
                     {#each tt.days as day, dayIndex}
-                        <div class="bg-surface-100-900 flex flex-col gap-1 items-center justify-center {dayIndex == tt.days.length-1 ? 'rounded-bl-lg' : ''}">
+                        <div class="{getDate(Date.now()) == getDate((tt.firstDay+86400*(dayIndex))*1000) ? 'bg-primary-500/60' : 'bg-surface-100-900'} flex flex-col gap-1 items-center justify-center {dayIndex == tt.days.length-1 ? 'rounded-bl-lg' : ''}">
                             <p class="font-semibold px-3">{dayNames[dayIndex]}</p>
                             <p class="text-xs">{getDate((tt.firstDay+86400*(dayIndex))*1000)}</p>
                         </div>
 
                         {#each day.lessons as lesson, lessonIndex}
-                        <div class="h-20 border-b border-surface-100-900 {lesson.raw.length > 2 ? 'bg-surface-100-900/50' : 'bg-surface-100-900/25'}">
+                        <div class="h-20 border-b border-surface-100-900 {getDate(Date.now()) == getDate((tt.firstDay+86400*(dayIndex))*1000) ?
+                        (lesson.raw.length > 2 ? 'bg-primary-500/30' : 'bg-primary-500/10') : (lesson.raw.length > 2 ? 'bg-surface-100-900/50' : 'bg-surface-100-900/25')}">
                             <div class="h-full {lessonIndex > 0 ? 'border-r' : 'border-x'} {Object.keys(lesson.changes).length > 0 || lesson.isCancelled
                                 ? 'bg-error-500/20'
-                                : ''} border-surface-100-900 p-1"
+                                : ''} {getDate(Date.now()) == getDate((tt.firstDay+86400*(dayIndex))*1000) ? 'border-primary-500/10' : 'border-surface-100-900'} p-1"
                             >
                             {#if lesson.raw.length > 2}
                                 <!-- class cell -->
@@ -168,7 +160,7 @@
                         {/each}
 
                         {#each createArr(5-day.lessons.length)}
-                            <div class="bg-surface-100-900/25 h-20 border-b border-surface-100-900">
+                            <div class="h-20 border-b border-surface-100-900 {getDate((tt.firstDay+86400*(dayIndex))*1000) == getDate(Date.now()) ? 'bg-primary-500/10' : 'bg-surface-100-900/25'}">
                                 <div class="h-full border-r border-surface-100-900 p-1"></div>
                             </div>
                         {/each}
@@ -181,7 +173,7 @@
         {/each}
         
     </div>
-</div>
+</AppPage>
 
 </NeedsAuth>
 
