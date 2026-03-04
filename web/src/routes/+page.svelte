@@ -172,8 +172,8 @@
     title = {messages.home.installTitle}
     open = {true}
 >
-    <p>{messages.home.installBody}</p>
+    <p class="mb-5 text-surface-800-200">{messages.home.installBody}</p>
 
-    <button class="btn preset-filled-primary-500">{messages.home.installCTA}</button>
+    <button class="btn preset-filled-primary-500" onclick={() => { installPWA() }}>{messages.home.installCTA}</button>
 </PopUp>
 {/if}
