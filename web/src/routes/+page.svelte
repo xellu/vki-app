@@ -3,7 +3,10 @@
     
     import AppPage from "$lib/components/AppPage.svelte";
     import Loader from "$lib/components/Loader.svelte";
- 
+    import PopUp from '$lib/components/PopUp.svelte';
+
+    import { onMount } from 'svelte';
+
     import { messageStore } from "$lib/stores/LanguageStore";
     import type { LanguageModel } from "$lib/models/Language";
     import { en_us } from "$lib/lang/en_us";
@@ -37,8 +40,32 @@
         }
     ]
 
-    let newLang: string = "en_us";
-    let signInEmail: string = "";
+    let newLang: string = $state("en_us");
+    let signInEmail: string = $state("");
+
+    let canInstall: boolean = $state(false);
+    let deferredPrompt: any;
+
+    onMount(() => {
+        //pwa thingies
+		window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            canInstall = true;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            canInstall = false;
+        });
+    })
+
+    async function installPWA() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        canInstall = false;
+    }
 </script>
 
 <svelte:head>
@@ -138,4 +165,15 @@
     </div>
 </div>
 
+{/if}
+
+{#if canInstall && !State.loading && !State.loggedIn}
+<PopUp
+    title = {messages.home.installTitle}
+    open = {true}
+>
+    <p>{messages.home.installBody}</p>
+
+    <button class="btn preset-filled-primary-500">{messages.home.installCTA}</button>
+</PopUp>
 {/if}

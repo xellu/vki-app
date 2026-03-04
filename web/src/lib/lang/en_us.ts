@@ -31,6 +31,9 @@ export const en_us: LanguageOption = {
             settings: "Settings",
 
             landingTitle: "Your schedule, grades and absences - All in one place",
+            installTitle: "VKI Plus has an App",
+            installBody: "Want to get live schedule updates or get notified when you get a new grade? The VKI+ App has you covered!",
+            installCTA: "Install Now"
         },
 
         login: {

@@ -32,6 +32,9 @@ export type LanguageModel = {
         settings: string,
 
         landingTitle: string,
+        installTitle: string,
+        installBody: string,
+        installCTA: string
     }
 
     login: {

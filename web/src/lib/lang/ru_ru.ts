@@ -31,6 +31,9 @@ export const ru_ru: LanguageOption = {
             settings: "Настройки",
 
             landingTitle: "Твоё расписание, оценки и пропуски, в одном месте.",
+            installTitle: "У VKI Plus теперь приложения",
+            installBody: "Хочешь получать уведомления об изменениях в расписании или новых оценках? Установи приложение!",
+            installCTA: "Установить"
         },
 
         login: {

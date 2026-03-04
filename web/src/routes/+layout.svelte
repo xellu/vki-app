@@ -1,19 +1,15 @@
 <script lang="ts">
 	import './layout.css';
 
-	import { onMount } from 'svelte';
-
-
 	import { loadLanguage } from '$lib/scripts/LanguageManager';
 	import { AutoAuthenticate } from '$lib/scripts/Auth';
 	import { toaster } from '$lib/scripts/Toaster';
-	
+
 	import { Toast } from '@skeletonlabs/skeleton-svelte';
+	import { onMount } from 'svelte';
   
 	let { children } = $props();
 
-	let canInstall = $state(false);
-    let deferredPrompt: any;
 
 	onMount(async () => {
 		//skeleton theme (light/dark) switch
@@ -36,26 +32,7 @@
 				description: auth.state.error
 			})
         }
-
-		//pwa thingies
-		window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            canInstall = true;
-        });
-
-        window.addEventListener('appinstalled', () => {
-            canInstall = false;
-        });
 	})
-
-	async function installPWA() {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        canInstall = false;
-    }
 
 	const ICONS: string[] = [
 		"keyboard_backspace",
@@ -85,7 +62,5 @@
 		</Toast>
 	{/snippet}
 </Toast.Group>
-
-<p>canInstall: {canInstall}</p>
 
 {@render children()}
