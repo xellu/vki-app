@@ -18,15 +18,15 @@ from fastapi.responses import JSONResponse
 @Request.POST()
 @Require.body(email=str, password=str)
 async def login(ctx: Context):
+    if not ctx.body["email"].endswith("@g.nsu.ru"):
+        ctx.body["email"] += "@g.nsu.ru" #to prevent using username logins
+    
     user = UserManager(email=ctx.body["email"])
     
     #check if cab.nsu.ru login is valid
     cookies, error = await NsuAPI.login(ctx.body["email"], ctx.body["password"])
     if error:
         return Error(error), 403
-    
-    if not ctx.body["email"].endswith("@g.nsu.ru"):
-        ctx.body["email"] += "@g.nsu.ru" #to prevent using username logins
     
     _isNew = False
     if not user.is_valid(): #create new user
