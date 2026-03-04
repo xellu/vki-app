@@ -131,7 +131,7 @@ class ScheduleManager:
                     stored_changes = stored_lesson.get("changes", {})
 
                     changes = {}
-                    for attr in ("short", "subject", "teacher", "classroom", "raw", "isCancelled"):
+                    for attr in ("subject", "teacher", "classroom", "isCancelled"):
                         new_val = new_lesson.to_dict()[attr]
                         #baseline is the original value from the start of the week,
                         #not the most recently stored value (to preserve change history correctly)
