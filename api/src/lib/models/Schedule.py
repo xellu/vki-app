@@ -141,6 +141,8 @@ class WeekSchedule:
 
     def to_dict(self) -> dict:
         first = self.firstDay or (self.days[0].date if self.days else None)
+        if first == datetime.datetime.min:
+            first = None
         return {
             "className": self.className,
             "days": [d.to_dict() for d in self.days],
