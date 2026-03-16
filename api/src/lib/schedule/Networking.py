@@ -34,15 +34,6 @@ class NSUNetUtil:
         logger.warn(f"Request in {source} failed: {r.url=}, {r.status_code=}")
         logger.warn(f"Response: {r.text}")
         logger.dir(r)
-    
-    def getClasses(self): #im so glad they actually made an api 🙏
-        r = requests.get("https://table-ci.nsu.ru/api/school-class")
-        if not r.ok:
-            self.failedRequest(r, "getClasses")
-            
-        data = r.json()
-        for classData in data.get("payload", {}).get("groups", []):
-            yield classData.get("name")
           
     def constructWeekSchedule(self, data: dict, target_week: int, className: str, scheduleType: str):
         def day_date(weekday: int) -> datetime:
@@ -106,6 +97,15 @@ class NSUNetUtil:
             self.failedRequest(r, "getClassScheduleData")
         return self.constructWeekSchedule(r.json(), target_week, className, "CLASS")
 
+    def getClasses(self): #im so glad they actually made an api 🙏
+        r = requests.get("https://table-ci.nsu.ru/api/school-class")
+        if not r.ok:
+            self.failedRequest(r, "getClasses")
+            
+        data = r.json()
+        for classData in data.get("payload", {}).get("groups", []):
+            yield classData.get("name")
+
     def getClassScheduleData(self, week: int = None) -> Iterator[WeekSchedule]:
         target_week = week or self.week
         classes = list(self.getClasses())
@@ -115,8 +115,6 @@ class NSUNetUtil:
             for future in as_completed(futures):
                 yield future.result()
 
-
-        #yk this was actually kinda fun
         
         
         

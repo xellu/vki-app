@@ -16,11 +16,6 @@ from src.lib.Language import Messages
 ScheduleDB = XelDB("Cache-Schedule", primary_key="className")
 logger = LogManager("Lib.Schedule")
 
-#TODO: save schedule to db
-#TODO: rework diff logic
-#TODO: add isCancelled logic
-#TODO: update subject names (some don't resolve now)
-
 class ScheduleManager:
     def __init__(self):
         self.update_period = Config("vki")["schedules.updateInterval"]
@@ -31,8 +26,6 @@ class ScheduleManager:
     
         self.thread = None
         self.error = None
-        
-        self._temp = {}
     
     def start(self):
         self.running = True
@@ -60,19 +53,17 @@ class ScheduleManager:
                 logger.info("Updating time tables from remote...")
                 start = time.time()
                 
+                out = {}
                 for schedule in NSUNetUtil().getClassScheduleData():
                     logger.ok(f"Fetched schedule for '{schedule.className}'")
-                    self._temp[schedule.className] = schedule.to_dict()
+                    out[schedule.className] = schedule
 
                 # download_timetables()
-                logger.ok(f"Updated {len(self._temp.keys())} timetables, took {time.time()-start:.1f}s")
+                logger.ok(f"Updated {len(out.keys())} timetables, took {time.time()-start:.1f}s")
             except Exception as err:
                 logger.trace(err)
                 self.error = Messages.SCHEDULE_DOWNLOAD_ERROR.value
                 continue
-            
-            
-            continue
             
                 
             try:
@@ -126,8 +117,10 @@ class ScheduleManager:
                     stored_changes = stored_lesson.get("changes", {})
 
                     changes = {}
-                    for attr in ("subject", "teacher", "classroom", "isCancelled"):
+                    for attr in ("subject", "teacher", "classroom"):
                         new_val = new_lesson.to_dict()[attr]
+                        new_lesson.isCancelled = new_val in ["N/A", None] and attr == "subject"
+                        
                         #baseline is the original value from the start of the week,
                         #not the most recently stored value (to preserve change history correctly)
                         baseline = stored_changes[attr][0] if attr in stored_changes else stored_lesson.get(attr)
