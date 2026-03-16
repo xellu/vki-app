@@ -25,7 +25,6 @@ class Lesson:
     subject: str #e.g. "Matematika"
     teacher: str #pretty self explanatory
     classroom: str #where the lesson is taking place (e.g. "101")
-    raw: str #the raw extracted string from the PDF
 
     changes: dict = field(default_factory=dict)
     #"attribute": ["previous value", "new value"], for example:
@@ -35,8 +34,8 @@ class Lesson:
 
     isCancelled: bool = False
 
-    def get_abbreviation(self, subj: str = None) -> str:
-        subj = re.sub(r'-\s+', '-', (subj or self.subject).lower())
+    def get_abbreviation(self) -> str:
+        subj = re.sub(r'-\s+', '-', (self.subject).lower())
         label = ""
         if subj:
             # for subject_key, abbreviation in sorted(subject_labels.items(), key=lambda x: len(x[0]), reverse=True):
@@ -61,59 +60,27 @@ class Lesson:
     
     def get_type(self) -> SubjectType:
         subj_type = SubjectType.SEMINAR
-        for x, _type in subject_types.items():
-            # print(f"{x.lower()} in {self.raw.lower()} = {(x.lower() in self.raw.lower())}")
-            if x.lower() in self.raw.lower():
-                subj_type = _type
+        # for x, _type in subject_types.items(): #broken atm
+        #     # print(f"{x.lower()} in {self.raw.lower()} = {(x.lower() in self.raw.lower())}")
+        #     if x.lower() in self.raw.lower():
+        #         subj_type = _type
         return subj_type
-    
-    def get_classroom(self):
-        if "читальный зал" in delete_spaces(self.raw).lower():
-            return "Чит. Зал"
-        
-        if self.classroom.lower() == "n/a": return self.classroom
-        
-        cr = self.classroom.lower()
-        cr = cr.replace("ауд. ", ""
-                ).replace("ауд.", ""
-                ).replace("ауд", ""
-                ).strip()
-        
-        if "НГУ" in self.raw.upper():
-            return f"{cr} (НГУ)"
-        return cr    
-            
-    def get_teacher(self):
-        if self.teacher.lower() == "n/a": return self.teacher
-        
-        if len(delete_spaces(self.teacher).split(" ")) == 2:
-            return self.teacher
-        
-        t = delete_spaces(self.teacher).split(" ")
-        out = t.pop(0) + " "
-        for name in t:
-            out += f"{list(name)[0]}."
-        return out
-    
-    def get_subject(self, short, fallback):
-        return subject_names.get(short, fallback)
     
     def to_dict(self) -> dict:
         if self.classroom.lower() == "физическая культура":
             self.subject = self.classroom
             self.classroom = ""
         
-        name = self.simplify_subject()    
-        abbreviation = self.get_abbreviation(name)
+        abbreviation = self.get_abbreviation()
     
         return {
             "short": abbreviation,
             "type": self.get_type().value,
             
-            "subject": self.get_subject(abbreviation, name),
-            "teacher": self.get_teacher(),
-            "classroom": self.get_classroom(),
-            "raw": self.raw,
+            "subject": self.subject,
+            "teacher": self.teacher,
+            "classroom": self.classroom,
+            # "raw": self.raw,
             
             "changes": self.changes,
             "isCancelled": self.isCancelled,
@@ -138,6 +105,7 @@ class WeekSchedule:
     className: str #e.g. 2401a1
     days: list[DaySchedule]
     firstDay: datetime.datetime = None
+    _type: str = "CLASS" # CLASS/TEACHER/CLASSROOM
 
     def to_dict(self) -> dict:
         first = self.firstDay or (self.days[0].date if self.days else None)

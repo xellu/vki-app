@@ -3,7 +3,6 @@ export type Lesson = {
     subject: string,
     teacher: string,
     classroom: string,
-    raw: string,
 
     type: "LAB" | "PRACTICAL" | "SEMINAR" | "LESSON" | "ONLINE_CLASS" 
 
@@ -12,7 +11,6 @@ export type Lesson = {
         subject?: string[],
         teacher?: string[],
         classroom?: string[],
-        raw?: string[]
     }
 
     isCancelled: boolean

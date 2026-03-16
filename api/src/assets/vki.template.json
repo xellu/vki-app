@@ -1,7 +1,7 @@
 {
     "schedules": {
-        "pdfTemp": ".tmp",
-        "updateInterval": 600    
+        "updateInterval": 600,
+        "maxConcurrentRequests": 20
     },
     "grades": {
         "updateInterval": 600,

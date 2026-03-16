@@ -9,8 +9,8 @@ from nautica.services.database.xeldb import XelDB
 from nautica.services.shell.descriptor import ShellCommand
 
 
-from src.lib.schedule.Networking import download_timetables
-from src.lib.schedule.Parser import parse_schedule_from_pdf
+from src.lib.schedule.Networking import NSUNetUtil
+# from src.lib.schedule.Parser import parse_schedule_from_pdf
 from src.lib.Language import Messages
 
 ScheduleDB = XelDB("Cache-Schedule", primary_key="className")
@@ -28,6 +28,8 @@ class ScheduleManager:
     
         self.thread = None
         self.error = None
+        
+        self._temp = {}
     
     def start(self):
         self.running = True
@@ -52,33 +54,23 @@ class ScheduleManager:
             Config("vki")["persist.scheduleNextUpdate"] = self.next_update
             
             try:
-                logger.info("Downloading time tables from remote...")
+                logger.info("Updating time tables from remote...")
                 start = time.time()
-                download_timetables()
-                logger.ok(f"Downloaded {len(walkPath(Config('vki')['schedules.pdfTemp']))-1} PDFs, took {time.time()-start:.1f}s")
+                
+                for schedule in NSUNetUtil().getClassScheduleData():
+                    logger.ok(f"Fetched schedule for '{schedule.className}'")
+                    self._temp[schedule.className] = schedule.to_dict()
+
+                # download_timetables()
+                logger.ok(f"Updated {len(self._temp.keys())} timetables, took {time.time()-start:.1f}s")
             except Exception as err:
                 logger.trace(err)
                 self.error = Messages.SCHEDULE_DOWNLOAD_ERROR.value
                 continue
-                
-            try:
-                logger.info("Parsing PDF Schedules...")
-                start = time.time()
-                
-                out = {}
-                
-                for file in walkPath(Config("vki")["schedules.pdfTemp"]):
-                    if not file.endswith(".pdf"): continue
-                    
-                    schedule = parse_schedule_from_pdf(file)
-                    for k, v in schedule.items():
-                        out[k] = v
-                
-                logger.ok(f"Extracted timetables for {len(out.keys())} classes, took {time.time()-start:.1f}s")
-            except Exception as err:
-                logger.trace(err)
-                self.error = Messages.SCHEDULE_PARSING_ERROR.value
-                continue
+            
+            
+            continue
+            
                 
             try:
                 self.create_diff(out)

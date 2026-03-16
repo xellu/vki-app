@@ -122,12 +122,12 @@
 
                         {#each day.lessons as lesson, lessonIndex}
                         <div class="h-20 border-b border-surface-100-900 {getDate(Date.now()) == getDate((tt.firstDay+86400*(dayIndex))*1000) && !lesson.isCancelled && Object.keys(lesson.changes).length == 0 ?
-                        (lesson.raw.length > 2 ? 'bg-primary-500/30' : 'bg-primary-500/10') : (lesson.raw.length > 2 ? 'bg-surface-100-900/50' : 'bg-surface-100-900/25')}">
+                        (lesson.subject && lesson.subject != 'N/A' ? 'bg-primary-500/30' : 'bg-primary-500/10') : (lesson.subject && lesson.subject != 'N/A' ? 'bg-surface-100-900/50' : 'bg-surface-100-900/25')}">
                             <div class="h-full {lessonIndex > 0 ? 'border-r' : 'border-x'} {Object.keys(lesson.changes).length > 0 || lesson.isCancelled
                                 ? 'bg-error-500/20'
                                 : ''} {getDate(Date.now()) == getDate((tt.firstDay+86400*(dayIndex))*1000) ? 'border-primary-500/10' : 'border-surface-100-900'} p-1"
                             >
-                            {#if lesson.raw.length > 2}
+                            {#if lesson.subject && lesson.subject != "N/A"}
                                 <!-- class cell -->
                             
                                 <button
@@ -181,7 +181,7 @@
     title = {lessonInfo.lesson?.subject || "N/A"}
     bind:open = {lessonInfo.open}
 >
-    <p class="text-xs text-surface-600-400 -mt-5">{lessonInfo.lesson?.raw}</p>
+    <!-- <p class="text-xs text-surface-600-400 -mt-5">{lessonInfo.lesson?.raw}</p> -->
 
     {#if lessonInfo.lesson?.isCancelled}
         <div class="text-error-600-400 mt-5 flex gap-2 items-center">
