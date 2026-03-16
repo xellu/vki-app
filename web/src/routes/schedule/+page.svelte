@@ -100,15 +100,15 @@
         {#each timetables as tt}
             {#if tt.className == selected}
             
-            <div class="overflow-x-scroll pb-2 max-w-3xl">
+            <div class="overflow-x-scroll pb-2 max-w-4xl">
                 <div class="grid"
-                    style="grid-template-columns: auto repeat(5, 8rem)">
+                    style="grid-template-columns: auto repeat(6, 8rem)">
                     
                     <!-- labels -->
                     <div class="rounded-tl-lg bg-surface-100-900 px-3 min-w-24 text-center text-sm text-surface-600-400 flex items-center justify-center">
                         {tt.className}</div>
-                    {#each [['9:00 - 9:45','9:50 - 10:35'], ['10:45 - 11:30','11:35 - 12:20'], ['13:00 - 13:45','13:50 - 14:35'], ['14:45 - 15:30','15:35 - 16:20'], ['16:30 - 17:15','17:20 - 18:05']] as [t1, t2], i}
-                        <div class="bg-surface-100-900 text-xs px-3 py-2 flex items-center whitespace-nowrap {i == 4 ? 'rounded-tr-lg' : ''}">
+                    {#each [['9:00 - 9:45','9:50 - 10:35'], ['10:45 - 11:30','11:35 - 12:20'], ['13:00 - 13:45','13:50 - 14:35'], ['14:45 - 15:30','15:35 - 16:20'], ['16:30 - 17:15','17:20 - 18:05'], ['18:15 - 19:00','19:05 - 19:50']] as [t1, t2], i}
+                        <div class="bg-surface-100-900 text-xs px-3 py-2 flex items-center whitespace-nowrap {i == 5 ? 'rounded-tr-lg' : ''}">
                             <p class="w-full text-center">{t1} <br> {t2}</p>
                         </div>
                     {/each}
@@ -143,7 +143,7 @@
                                         </p>
 
                                         <p class="{lesson.classroom == 'n/a' ? 'opacity-0' : ''} text-xs {Object.keys(lesson.changes).includes('classroom') ? 'text-error-500' : ''}">
-                                            {lesson.classroom.includes("дистанционно") || lesson.classroom.includes("дистанционная") ? "MTS Link" : lesson.classroom}
+                                            {lesson.classroom.includes("дистанционно") || lesson.classroom.includes("дистанционная") ? "" : lesson.classroom.replaceAll('Читальный', 'Чит.')}
                                         </p>
                                     </div>
 
@@ -159,7 +159,7 @@
                         </div>
                         {/each}
 
-                        {#each createArr(5-day.lessons.length)}
+                        {#each createArr(6-day.lessons.length)}
                             <div class="h-20 border-b border-surface-100-900 {getDate((tt.firstDay+86400*(dayIndex))*1000) == getDate(Date.now()) ? 'bg-primary-500/10' : 'bg-surface-100-900/25'}">
                                 <div class="h-full border-r border-surface-100-900 p-1"></div>
                             </div>

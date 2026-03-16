@@ -11,6 +11,17 @@ from src.lib.models.Schedule import WeekSchedule, DaySchedule, Lesson
 
 logger = LogManager("Lib.Schedule.Networking")
 
+LESSONS_INDEXED = {
+    #begin time: index
+    "9:00": 0,
+    "09:00": 0,
+    "10:45": 1,
+    "13:00": 2,
+    "14:45": 3,
+    "16:30": 4,
+    "18:15": 5
+}
+
 class NSUNetUtil:
     def __init__(self):
         #get the week of the year
@@ -51,6 +62,7 @@ class NSUNetUtil:
             all_lessons = _schedule  # fallback for list format
 
         for lesson in all_lessons:
+            #skip bullshit data (hopefully)
             if not isinstance(lesson, dict):
                 logger.warn(f"'{lesson}' is not dict, skipping")
                 continue
@@ -59,17 +71,20 @@ class NSUNetUtil:
             if weekDay is None:
                 continue
 
-            if weekDay not in days:
-                days[weekDay] = DaySchedule(date=day_date(weekDay), lessons=[])
-
+            if weekDay not in days: #create a new day and fill it with lessons
+                dayLessons = [Lesson(subject="N/A", teacher="N/A", classroom="N/A") for _ in range(6)] #there should be only 5 classes per day max - apparently not
+                days[weekDay] = DaySchedule(date=day_date(weekDay), lessons=dayLessons)
+            
             teacher_data = lesson.get("teacher") or {}
             classroom_data = lesson.get("classroom") or {}
-            days[weekDay].lessons.append(
-                Lesson(
-                    subject = lesson.get("lesson", {}).get("name", "N/A"),
-                    teacher = teacher_data.get("name", "N/A"),
-                    classroom = classroom_data.get("name", "N/A")
-                )
+            
+            begin = lesson.get("time", {}).get("begin")
+            
+            #                                        v--- i'd rather it just fail than overwrite some bs
+            days[weekDay].lessons[LESSONS_INDEXED[begin]] = Lesson(
+                subject = lesson.get("lesson", {}).get("name", "N/A"),
+                teacher = teacher_data.get("name", "N/A"),
+                classroom = classroom_data.get("name", "N/A")
             )
 
         #build mon-sat list (weekdays 1–6), filling missing days with empty schedules
@@ -79,7 +94,7 @@ class NSUNetUtil:
         ]
         
         return WeekSchedule(
-            className = className,
+            className = className.replace("В", "", 1),
             days = daysSorted,
             firstDay = monday,
             _type = scheduleType
