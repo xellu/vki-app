@@ -16,6 +16,8 @@ from src.lib.Language import Messages
 ScheduleDB = XelDB("Cache-Schedule", primary_key="className")
 logger = LogManager("Lib.Schedule")
 
+#TODO: differentiate between SubjectTypes
+
 class ScheduleManager:
     def __init__(self):
         self.update_period = Config("vki")["schedules.updateInterval"]
@@ -55,7 +57,7 @@ class ScheduleManager:
                 
                 out = {}
                 for schedule in NSUTablesUtil().getAllSchedules():
-                    logger.ok(f"Fetched schedule for '{schedule.className}'")
+                    logger.debug(f"Fetched schedule for '{schedule.className}'")
                     out[schedule.className] = schedule
                 
                 # download_timetables()

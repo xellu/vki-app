@@ -24,5 +24,6 @@ export type DaySchedule = {
 export type WeekSchedule = {
     className: string,
     days: DaySchedule[],
-    firstDay: number
+    firstDay: number,
+    _type: "CLASS" | "TEACHER" | "CLASSROOM"
 }

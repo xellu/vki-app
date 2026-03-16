@@ -86,7 +86,7 @@ class NSUTablesUtil:
         ]
         
         return WeekSchedule(
-            className = className.replace("В", "", 1),
+            className = className.replace("В", "", 1) if scheduleType == "CLASS" else className, #remove the fuckass letter at the start of the group name (B2407a1 -> 2407a1)
             days = daysSorted,
             firstDay = monday,
             _type = scheduleType
@@ -99,6 +99,7 @@ class NSUTablesUtil:
         
         scheduleName = className or teacher or classroom
         scheduleType = "CLASS" if className else ("TEACHER" if teacher else "CLASSROOM")
+        # print(scheduleType)
         return self.constructWeekSchedule(r.json(), target_week, scheduleName, scheduleType)
     
     #timetables------------

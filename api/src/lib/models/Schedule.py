@@ -93,10 +93,10 @@ class DaySchedule:
 
 @dataclass
 class WeekSchedule:
-    className: str #e.g. 2401a1
+    className: str #e.g. 2401a1, Пауль С.А., 207 КПА
     days: list[DaySchedule]
     firstDay: datetime.datetime = None
-    _type: str = "CLASS" # CLASS/TEACHER/CLASSROOM
+    _type: str = "N/A" # CLASS/TEACHER/CLASSROOM
 
     def to_dict(self) -> dict:
         first = self.firstDay or (self.days[0].date if self.days else None)
@@ -106,6 +106,7 @@ class WeekSchedule:
             "className": self.className,
             "days": [d.to_dict() for d in self.days],
             "firstDay": first.timestamp() if first else None,
+            "_type": self._type
         }
 
 # a 3 letter abbreviation (i.e. Операционные системы и среды -> ОСС, Математика -> МАТ)
