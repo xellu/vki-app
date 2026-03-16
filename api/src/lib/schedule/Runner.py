@@ -147,6 +147,9 @@ def on_shutdown(reason: str = None):
     
 @ShellCommand("schedule.update", "Updates the schedule from remote", "schedule.update")
 def reset_schedule_cooldown(*args, **kwargs):
+    if not Schedules.running:
+        Schedules.start()
+        
     Schedules.next_update = 0
     
 @ShellCommand("schedule.dump", "Dumps lesson data from all schedules into a file", "schedule.dump <subject/teacher/classroom/raw/*>")

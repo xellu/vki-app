@@ -76,9 +76,7 @@ class UserManager:
         """Delete the user."""
         if not self.is_valid():
             return UserActionResponse(False, "User not found")
-        
-        #TODO: remove all roles
-        
+                
         MongoDB("vki").users.delete_one({"_id": self.uid})
         self.user = None
         
