@@ -9,7 +9,7 @@ from nautica.services.database.xeldb import XelDB
 from nautica.services.shell.descriptor import ShellCommand
 
 
-from src.lib.schedule.Networking import NSUNetUtil
+from src.lib.schedule.Networking import NSUTablesUtil
 # from src.lib.schedule.Parser import parse_schedule_from_pdf
 from src.lib.Language import Messages
 
@@ -54,10 +54,10 @@ class ScheduleManager:
                 start = time.time()
                 
                 out = {}
-                for schedule in NSUNetUtil().getClassScheduleData():
+                for schedule in NSUTablesUtil().getAllSchedules():
                     logger.ok(f"Fetched schedule for '{schedule.className}'")
                     out[schedule.className] = schedule
-
+                
                 # download_timetables()
                 logger.ok(f"Updated {len(out.keys())} timetables, took {time.time()-start:.1f}s")
             except Exception as err:
@@ -145,10 +145,15 @@ def reset_schedule_cooldown(*args, **kwargs):
         
     Schedules.next_update = 0
     
+@ShellCommand("test", "test", "test")
+def test_command(*args, **kwargs):
+    for teach in NSUTablesUtil().getClassroomScheduleData():
+        print(teach)
+    
 @ShellCommand("schedule.dump", "Dumps lesson data from all schedules into a file", "schedule.dump <subject/teacher/classroom/raw/*>")
 def dump_schedule_data(field, *args, **kwargs):
     out = []
-    if field in ["subject", "teacher", "classroom", "raw", "*"]:
+    if field in ["subject", "teacher", "classroom", "*"]:
         for _, classId in ScheduleDB.data_keyed.items():
             week = ScheduleDB.getById(classId)
             for day in week.get("days", []):

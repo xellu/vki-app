@@ -22,7 +22,7 @@ LESSONS_INDEXED = {
     "18:15": 5
 }
 
-class NSUNetUtil:
+class NSUTablesUtil:
     def __init__(self):
         #get the week of the year
         self.calendar = datetime.today().isocalendar()
@@ -30,12 +30,13 @@ class NSUNetUtil:
         
         if self.calendar.weekday == 7: self.week += 1 #switch to next week on sunday
     
-    def failedRequest(self, r: requests.Request, source: str):
+    def failedRequest(self, r: requests.Request, source: str) -> None:
         logger.warn(f"Request in {source} failed: {r.url=}, {r.status_code=}")
         logger.warn(f"Response: {r.text}")
         logger.dir(r)
-          
-    def constructWeekSchedule(self, data: dict, target_week: int, className: str, scheduleType: str):
+        
+    #a bit of parsing---------------------  
+    def constructWeekSchedule(self, data: dict, target_week: int, className: str, scheduleType: str) -> WeekSchedule:
         def day_date(weekday: int) -> datetime:
             return monday + timedelta(days=weekday - 1)
         
@@ -90,716 +91,125 @@ class NSUNetUtil:
             firstDay = monday,
             _type = scheduleType
         )
-            
-    def _fetchSchedule(self, className: str, target_week: int) -> WeekSchedule:
+    
+    def _fetchSchedule(self, target_week: int, className: str = "", teacher: str = "", classroom: str = "") -> WeekSchedule:
         r = requests.get(f"https://table-ci.nsu.ru/api/schedule/find?group={className}&teacher=&classroom=&week={target_week}&year={self.calendar.year}")
         if not r.ok:
             self.failedRequest(r, "getClassScheduleData")
-        return self.constructWeekSchedule(r.json(), target_week, className, "CLASS")
-
-    def getClasses(self): #im so glad they actually made an api 🙏
+        
+        scheduleName = className or teacher or classroom
+        scheduleType = "CLASS" if className else ("TEACHER" if teacher else "CLASSROOM")
+        return self.constructWeekSchedule(r.json(), target_week, scheduleName, scheduleType)
+    
+    #timetables------------
+    def getAllSchedules(self, week: int = None) -> Iterator[WeekSchedule]:
+        for s in self.getClassScheduleData(week):
+            yield s
+        for s in self.getTeacherScheduleData(week):
+            yield s
+        for s in self.getClassroomScheduleData(week):
+            yield s
+        
+        
+    
+    #timetables for classes----------------------     
+    def getClasses(self) -> list[str]: #im so glad they actually made an api 🙏
         r = requests.get("https://table-ci.nsu.ru/api/school-class")
         if not r.ok:
             self.failedRequest(r, "getClasses")
             
         data = r.json()
+        _classes = []
         for classData in data.get("payload", {}).get("groups", []):
-            yield classData.get("name")
+            _classes.append(classData.get("name"))
+        return _classes #not really a point to use an iterator i guess
 
     def getClassScheduleData(self, week: int = None) -> Iterator[WeekSchedule]:
         target_week = week or self.week
-        classes = list(self.getClasses())
+        classes = self.getClasses()
 
         with ThreadPoolExecutor(max_workers=Config("vki")["schedules.maxConcurrentRequests"]) as executor:
-            futures = {executor.submit(self._fetchSchedule, className, target_week) for className in classes}
+            futures = {executor.submit(self._fetchSchedule, target_week, className=className) for className in classes}
             for future in as_completed(futures):
                 yield future.result()
 
+    def getPerClassScheduleData(self, className: str, week: int = None) -> Iterator[WeekSchedule]:
+        return self._fetchSchedule(className, week or self.week)
+
+    #timetables for teachers-----------------------
+    def _getPartialTeacherList(self, filter) -> list[str]:
+        r = requests.get(f"https://table-ci.nsu.ru/api/teacher?filter={filter}")
+        teachers = []
+        if r.ok:
+            for teach in r.json().get("payload", {}).get("teachers", []):
+                teachers.append(teach.get("name"))
+            return teachers
         
+        self.failedRequest(r, "_getPartialTeacherList")
+        return []
+
+    def getTeachers(self) -> Iterator[str]:
+        def getFilters() -> list[str]:
+            r = requests.get("https://table-ci.nsu.ru/api/teacher/filters")
+            if not r.ok:
+                self.failedRequest(r, "getTeachers")
+                
+            data = r.json()
+            filters = []
+            for filter in data.get("payload", {}).get("filters", []):
+                filters.append(filter.get("text"))
+                
+            return filters
         
+        with ThreadPoolExecutor(max_workers=Config("vki")["schedules.maxConcurrentRequests"]) as executor:
+            futures = {executor.submit(self._getPartialTeacherList, filter) for filter in getFilters()}
+            for future in as_completed(futures):
+                for teach in future.result(): yield teach
+                    
+    def getTeacherScheduleData(self, week: int = None) -> Iterator[WeekSchedule]:
+        target_week = week or self.week
+        teachers = list(self.getTeachers())
+
+        with ThreadPoolExecutor(max_workers=Config("vki")["schedules.maxConcurrentRequests"]) as executor:
+            futures = {executor.submit(self._fetchSchedule, target_week, teacher=teacher) for teacher in teachers}
+            for future in as_completed(futures):
+                yield future.result()
+                
+    #timetables for classrooms---------------
+    def _getPartialClassroomList(self, filter) -> list[str]:
+        r = requests.get(f"https://table-ci.nsu.ru/api/classroom?filter={filter}")
+        classrooms = []
+        if r.ok:
+            for teach in r.json().get("payload", {}).get("classrooms", []):
+                classrooms.append(teach.get("name"))
+            return classrooms
         
-#example response:
-# {
-# 	"payload": {
-# 		"schedule": {
-# 			"2-09:00": [
-# 				{
-# 					"id": 63255,
-# 					"weekday": 2,
-# 					"time": {
-# 						"id": 89,
-# 						"begin": "09:00",
-# 						"end": "10:35"
-# 					},
-# 					"lesson": {
-# 						"id": 13376,
-# 						"name": "Основы электротехники и электронной техники",
-# 						"type": 1
-# 					},
-# 					"classroom": null,
-# 					"teacher": {
-# 						"id": 8203,
-# 						"name": "Черняйкин И.С."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 9009,
-# 							"name": "В2408а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 9147,
-# 							"name": "В2408а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7201,
-# 							"name": "В2401б1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7367,
-# 							"name": "В2401б2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"2-10:45": [
-# 				{
-# 					"id": 63256,
-# 					"weekday": 2,
-# 					"time": {
-# 						"id": 90,
-# 						"begin": "10:45",
-# 						"end": "12:20"
-# 					},
-# 					"lesson": {
-# 						"id": 4552,
-# 						"name": "Основы алгоритмизации и программирования",
-# 						"type": 1
-# 					},
-# 					"classroom": {
-# 						"id": 103,
-# 						"name": "207 КПА"
-# 					},
-# 					"teacher": {
-# 						"id": 10437,
-# 						"name": "Голкова Н.В."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7479,
-# 							"name": "В2407а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7590,
-# 							"name": "В2407а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7591,
-# 							"name": "В2407б1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7801,
-# 							"name": "В2407б2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7944,
-# 							"name": "В2407в1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7945,
-# 							"name": "В2407в2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 8142,
-# 							"name": "В2407г1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 8143,
-# 							"name": "В2407г2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 8304,
-# 							"name": "В2407е1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 8305,
-# 							"name": "В2407е2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 4750,
-# 							"name": "В2407з1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 4835,
-# 							"name": "В2407з2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 5039,
-# 							"name": "В2407и1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 5128,
-# 							"name": "В2407и2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 9009,
-# 							"name": "В2408а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 9147,
-# 							"name": "В2408а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7201,
-# 							"name": "В2401б1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7367,
-# 							"name": "В2401б2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"3-09:00": [
-# 				{
-# 					"id": 63268,
-# 					"weekday": 3,
-# 					"time": {
-# 						"id": 89,
-# 						"begin": "09:00",
-# 						"end": "10:35"
-# 					},
-# 					"lesson": {
-# 						"id": 6388,
-# 						"name": "Физика",
-# 						"type": 3
-# 					},
-# 					"classroom": {
-# 						"id": 73,
-# 						"name": "412"
-# 					},
-# 					"teacher": {
-# 						"id": 8204,
-# 						"name": "Ильина О.А."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"3-10:45": [
-# 				{
-# 					"id": 63283,
-# 					"weekday": 3,
-# 					"time": {
-# 						"id": 90,
-# 						"begin": "10:45",
-# 						"end": "12:20"
-# 					},
-# 					"lesson": {
-# 						"id": 13336,
-# 						"name": "Учебная практика ПМ.03 Техническое обслуживание и ремонт компьютерных систем и комплексов",
-# 						"type": 3
-# 					},
-# 					"classroom": {
-# 						"id": 81,
-# 						"name": "301"
-# 					},
-# 					"teacher": {
-# 						"id": 15091,
-# 						"name": "Краснов Л.П."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"3-13:00": [
-# 				{
-# 					"id": 63286,
-# 					"weekday": 3,
-# 					"time": {
-# 						"id": 91,
-# 						"begin": "13:00",
-# 						"end": "14:35"
-# 					},
-# 					"lesson": {
-# 						"id": 6384,
-# 						"name": "Математика",
-# 						"type": 2
-# 					},
-# 					"classroom": {
-# 						"id": 92,
-# 						"name": "102"
-# 					},
-# 					"teacher": {
-# 						"id": 26444,
-# 						"name": "Табиханова З.Е."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"4-10:45": [
-# 				{
-# 					"id": 63410,
-# 					"weekday": 4,
-# 					"time": {
-# 						"id": 90,
-# 						"begin": "10:45",
-# 						"end": "12:20"
-# 					},
-# 					"lesson": {
-# 						"id": 13386,
-# 						"name": "Техническое обслуживание и ремонт аппаратной части компьютерных систем и комплексов",
-# 						"type": 3
-# 					},
-# 					"classroom": {
-# 						"id": 81,
-# 						"name": "301"
-# 					},
-# 					"teacher": {
-# 						"id": 8522,
-# 						"name": "Кутузов М.А."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"4-13:00": [
-# 				{
-# 					"id": 63434,
-# 					"weekday": 4,
-# 					"time": {
-# 						"id": 91,
-# 						"begin": "13:00",
-# 						"end": "14:35"
-# 					},
-# 					"lesson": {
-# 						"id": 13386,
-# 						"name": "Техническое обслуживание и ремонт аппаратной части компьютерных систем и комплексов",
-# 						"type": 1
-# 					},
-# 					"classroom": {
-# 						"id": 58,
-# 						"name": "414"
-# 					},
-# 					"teacher": {
-# 						"id": 8522,
-# 						"name": "Кутузов М.А."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7201,
-# 							"name": "В2401б1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7367,
-# 							"name": "В2401б2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"4-14:45": [
-# 				{
-# 					"id": 63445,
-# 					"weekday": 4,
-# 					"time": {
-# 						"id": 92,
-# 						"begin": "14:45",
-# 						"end": "16:20"
-# 					},
-# 					"lesson": {
-# 						"id": 4552,
-# 						"name": "Основы алгоритмизации и программирования",
-# 						"type": 3
-# 					},
-# 					"classroom": {
-# 						"id": 56,
-# 						"name": "302"
-# 					},
-# 					"teacher": {
-# 						"id": 3964,
-# 						"name": "Белякова М.А."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"5-09:00": [
-# 				{
-# 					"id": 63459,
-# 					"weekday": 5,
-# 					"time": {
-# 						"id": 89,
-# 						"begin": "09:00",
-# 						"end": "10:35"
-# 					},
-# 					"lesson": {
-# 						"id": 11701,
-# 						"name": "Физическая культура",
-# 						"type": 2
-# 					},
-# 					"classroom": null,
-# 					"teacher": {
-# 						"id": 33773,
-# 						"name": "Балашов М.А."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"5-10:45": [
-# 				{
-# 					"id": 63466,
-# 					"weekday": 5,
-# 					"time": {
-# 						"id": 90,
-# 						"begin": "10:45",
-# 						"end": "12:20"
-# 					},
-# 					"lesson": {
-# 						"id": 6387,
-# 						"name": "Русский язык",
-# 						"type": 2
-# 					},
-# 					"classroom": {
-# 						"id": 55,
-# 						"name": "233"
-# 					},
-# 					"teacher": {
-# 						"id": 8595,
-# 						"name": "Клюшова Е.В."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"5-13:00": [
-# 				{
-# 					"id": 63487,
-# 					"weekday": 5,
-# 					"time": {
-# 						"id": 91,
-# 						"begin": "13:00",
-# 						"end": "14:35"
-# 					},
-# 					"lesson": {
-# 						"id": 6388,
-# 						"name": "Физика",
-# 						"type": 1
-# 					},
-# 					"classroom": {
-# 						"id": 98,
-# 						"name": "Читальный зал А"
-# 					},
-# 					"teacher": {
-# 						"id": 4844,
-# 						"name": "Аксенов М.С."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7201,
-# 							"name": "В2401б1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7367,
-# 							"name": "В2401б2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"6-09:00": [
-# 				{
-# 					"id": 63508,
-# 					"weekday": 6,
-# 					"time": {
-# 						"id": 89,
-# 						"begin": "09:00",
-# 						"end": "10:35"
-# 					},
-# 					"lesson": {
-# 						"id": 6384,
-# 						"name": "Математика",
-# 						"type": 2
-# 					},
-# 					"classroom": {
-# 						"id": 92,
-# 						"name": "102"
-# 					},
-# 					"teacher": {
-# 						"id": 26444,
-# 						"name": "Табиханова З.Е."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			],
-# 			"6-10:45": [
-# 				{
-# 					"id": 63550,
-# 					"weekday": 6,
-# 					"time": {
-# 						"id": 90,
-# 						"begin": "10:45",
-# 						"end": "12:20"
-# 					},
-# 					"lesson": {
-# 						"id": 4539,
-# 						"name": "Иностранный язык в профессиональной деятельности",
-# 						"type": 2
-# 					},
-# 					"classroom": {
-# 						"id": 66,
-# 						"name": "229"
-# 					},
-# 					"teacher": {
-# 						"id": 10641,
-# 						"name": "Бессонова В.А."
-# 					},
-# 					"schoolClasses": [
-# 						{
-# 							"id": 7101,
-# 							"name": "В2401а1",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						},
-# 						{
-# 							"id": 7200,
-# 							"name": "В2401а2",
-# 							"parallel": 0,
-# 							"subgroup": null
-# 						}
-# 					],
-# 					"parity": null,
-# 					"show_for_current_week": true,
-# 					"parity_label": null,
-# 					"parity_type": null
-# 				}
-# 			]
-# 		}
-# 	}
-# }
+        self.failedRequest(r, "_getPartialClassroomList")
+        return []
+        
+    def getClassrooms(self) -> Iterator[str]:
+        def getFilters() -> list[str]:
+            r = requests.get("https://table-ci.nsu.ru/api/classroom/filters")
+            if not r.ok:
+                self.failedRequest(r, "getTeachers")
+                
+            data = r.json()
+            filters = []
+            for filter in data.get("payload", {}).get("filters", []):
+                filters.append(filter.get("text"))
+                
+            return filters #wow i love boilerplate 👍👍👍👍👍
+        
+        with ThreadPoolExecutor(max_workers=Config("vki")["schedules.maxConcurrentRequests"]) as executor:
+            futures = {executor.submit(self._getPartialClassroomList, filter) for filter in getFilters()}
+            for future in as_completed(futures):
+                for teach in future.result(): yield teach
+                
+    def getClassroomScheduleData(self, week: int = None) -> Iterator[WeekSchedule]:
+        target_week = week or self.week
+        classrooms = list(self.getClassrooms())
+
+        with ThreadPoolExecutor(max_workers=Config("vki")["schedules.maxConcurrentRequests"]) as executor:
+            futures = {executor.submit(self._fetchSchedule, target_week, classroom=classroom) for classroom in classrooms}
+            for future in as_completed(futures):
+                yield future.result()
