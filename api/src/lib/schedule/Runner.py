@@ -16,7 +16,10 @@ from src.lib.Language import Messages
 ScheduleDB = XelDB("Cache-Schedule", primary_key="className")
 logger = LogManager("Lib.Schedule")
 
-#TODO: switch from PDFs to https://table-ci.nsu.ru/ or use a hybrid model
+#TODO: save schedule to db
+#TODO: rework diff logic
+#TODO: add isCancelled logic
+#TODO: update subject names (some don't resolve now)
 
 class ScheduleManager:
     def __init__(self):
