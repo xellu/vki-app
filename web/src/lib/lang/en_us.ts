@@ -31,9 +31,11 @@ export const en_us: LanguageOption = {
             settings: "Settings",
 
             landingTitle: "Your schedule, grades and absences - All in one place",
+            
             installTitle: "VKI Plus has an App",
             installBody: "Want to get live schedule updates or get notified when you get a new grade? The VKI+ App has you covered!",
-            installCTA: "Install Now"
+            installCTA: "Install Now",
+            installNotification: "Install VKI+ Today!"
         },
 
         login: {
@@ -52,6 +54,7 @@ export const en_us: LanguageOption = {
             },
             userSettings: {
                 label: "Account Settings",
+                username: "Profile",
             },
             appInfo: {
                 label: "About Application"
@@ -95,7 +98,17 @@ export const en_us: LanguageOption = {
             subject: "Subject",
             teacher: "Professor",
             classroom: "Classroom",
-            isCancelled: "This class is cancelled"
+            isCancelled: "This class is cancelled",
+
+            
+            allTimetables: "All Timetables",
+            timetableTabs: {
+                class: "Classes",
+                teacher: "Teachers",
+                classroom: "Classrooms"
+            },
+            course: "Year %",
+            timetableFor: "Schedule for %"
         },
 
         absences: {

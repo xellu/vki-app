@@ -15,7 +15,7 @@
     let open = false;
 </script>
 
-<div class="h-20 border-b border-surface-100-900 {isToday && !lesson.isCancelled && Object.keys(lesson.changes).length == 0
+<div class="h-20 min-w-36 border-b border-surface-100-900 {isToday && !lesson.isCancelled && Object.keys(lesson.changes).length == 0
     ? (lesson.subject && lesson.subject != 'N/A' ? 'bg-primary-500/30' : 'bg-primary-500/10')
     : (lesson.subject && lesson.subject != 'N/A' ? 'bg-surface-100-900/50' : 'bg-surface-100-900/25')}">
     <div class="h-full {lessonIndex > 0 ? 'border-r' : 'border-x'} {Object.keys(lesson.changes).length > 0 || lesson.isCancelled

@@ -8,6 +8,7 @@
     messageStore.subscribe((value) => { messages = value; });
 
     export let title: string = "";
+    export let returnUrl: string = "/";
     export let disableBack: boolean = false;
 </script>
 
@@ -19,14 +20,14 @@
                 <h1 class="h6 text-primary-500">VKI Plus</h1>
             </div>
         {:else}
-            <a href="/" title={messages.nav.return} class="text-primary-600-400">
+            <a href="{returnUrl || '/'}" title={messages.nav.return} class="text-primary-600-400">
                 <button class="btn p-0 flex items-center justify-center gap-3 pr-5">
                     <span class="material-symbols-sharp">keyboard_backspace</span>
                     <p class="text-sm">{messages.nav.return}</p>
                 </button>
             </a>
         {/if}
-        <p class="test-sm">{title}</p>
+        <p class="test-sm whitespace-nowrap overflow-hidden text-ellipsis">{title}</p>
     </div>
     <slot></slot>
 </div>

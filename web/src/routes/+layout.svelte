@@ -40,6 +40,8 @@
 		"settings",
 		"error",
 		"arrow_forward",
+		"menu",
+		"account_circle"
 
 	].toSorted();
 </script>

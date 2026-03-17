@@ -27,8 +27,8 @@
     }
 </script>
 
-<div class="overflow-x-scroll pb-2 max-w-4xl">
-    <div class="grid" style="grid-template-columns: auto repeat(6, 8rem)">
+<div class="overflow-x-scroll pb-2 w-full max-w-4xl">
+    <div class="grid w-full" style="grid-template-columns: auto repeat(6, 1fr)">
 
         <!-- header row -->
         <div class="rounded-tl-lg bg-surface-100-900 px-3 min-w-24 text-center text-sm text-surface-600-400 flex items-center justify-center">

@@ -2,11 +2,12 @@
     import NeedsAuth from "$lib/components/NeedsAuth.svelte";
     import AppPage from "$lib/components/AppPage.svelte";
     import Timetable from "$lib/components/schedule/Timetable.svelte";
+    import SchedulePicker from "$lib/components/schedule/SchedulePicker.svelte";
 
     import { onMount } from "svelte";
 
     import type { WeekSchedule } from "$lib/models/Timetables";
-    import { Account, type Profile } from "$lib/scripts/Auth";
+    import { Account, AuthState, type Profile, type AuthStateType } from "$lib/scripts/Auth";
 
     import { messageStore } from "$lib/stores/LanguageStore";
     import type { LanguageModel } from "$lib/models/Language";
@@ -18,18 +19,22 @@
 
     let messages: LanguageModel | any = en_us.model;
     let User: Profile | null = null;
+    let State: AuthStateType = {loading: true, loggedIn: false};
+
+    let listOpen: boolean = false;
 
     messageStore.subscribe((value) => { messages = value; });
     Account.subscribe((value) => { User = value; });
+    AuthState.subscribe((value) => {
+        State = value;
+    
+        if (!State.loading && !State.loggedIn) {
+            listOpen = true;
+        }
+    })
 
     $: timetables = data.timetables;
     $: selected = User?.group || timetables[0]?.className || "";
-
-    onMount(() => {
-        if (data.scheduleError) {
-            toaster.error({ description: messages.errors[data.scheduleError] });
-        }
-    });
 
     function getSubclassSiblings(_selected: string) {
         const base = _selected.slice(0, -1);
@@ -39,36 +44,48 @@
 
         return [base + "1", base + "2"];
     }
+
+    onMount(() => {
+        if (data.scheduleError) {
+            toaster.error({ description: messages.errors[data.scheduleError] });
+        }
+    });
+
 </script>
 
 <svelte:head>
     <title>My Schedule | VKI Plus</title>
 </svelte:head>
 
-<NeedsAuth>
+{#if State.loggedIn}
 <AppPage title={messages.home.schedule}>
     <div class="grow overflow-y-scroll flex flex-col gap-1 p-3">
-        <div class="flex mb-2">
-            <button
-                class="btn btn-sm {selected == getSubclassSiblings(selected)[0] ? 'preset-filled-primary-500' : 'preset-filled-surface-100-900'} rounded-r-none w-1/4 max-w-32 grow"
-                onclick={() => { selected = getSubclassSiblings(selected)[0] }}
-            >
-                {getSubclassSiblings(selected)[0]}
-            </button>
-            <button
-                class="btn btn-sm {selected == getSubclassSiblings(selected)[1] ? 'preset-filled-primary-500' : 'preset-filled-surface-100-900'} rounded-l-none w-1/4 max-w-32 grow"
-                onclick={() => { selected = getSubclassSiblings(selected)[1] }}
-            >
-                {getSubclassSiblings(selected)[1]}
-            </button>
+        <div class="flex mb-2 max-w-4xl w-full items-center justify-between">
+            <div class="flex grow">
+                <button
+                    class="btn btn-sm {selected == getSubclassSiblings(selected)[0] ? 'preset-filled-primary-500' : 'preset-filled-surface-100-900'} rounded-r-none min-w-24 max-w-32 grow"
+                    onclick={() => { selected = getSubclassSiblings(selected)[0] }}
+                >
+                    {getSubclassSiblings(selected)[0]}
+                </button>
+                <button
+                    class="btn btn-sm {selected == getSubclassSiblings(selected)[1] ? 'preset-filled-primary-500' : 'preset-filled-surface-100-900'} rounded-l-none min-w-24 max-w-32 grow"
+                    onclick={() => { selected = getSubclassSiblings(selected)[1] }}
+                >
+                    {getSubclassSiblings(selected)[1]}
+                </button>
+            </div>
 
-            <div class="w-1/4 md:hidden grow"></div>
-
-            <select class="select btn-sm ml-3 max-w-lg w-1/4 grow" bind:value={selected}>
+            <!-- <select class="select btn-sm ml-3 max-w-lg w-1/4 grow" bind:value={selected}>
                 {#each timetables as t}
                     <option>{t.className}</option>
                 {/each}
-            </select>
+            </select> -->
+            <button class="select btn-sm ml-3 max-w-lg grow" onclick={() => {
+                listOpen = true;
+            }}>
+                {messages.schedule.allTimetables}
+            </button>
         </div>
 
         {#each timetables as tt}
@@ -78,4 +95,25 @@
         {/each}
     </div>
 </AppPage>
-</NeedsAuth>
+{/if}
+
+<SchedulePicker
+    bind:open={listOpen}
+    preventClose={!State.loggedIn}
+
+    {timetables}
+    {selected}   
+>
+    <!-- show return arrow for guests -->
+    {#if !State.loggedIn}
+        <div class="pt-3">
+            <a href="/" title={messages.nav.return} class="text-primary-600-400">
+                <button class="btn p-0 flex items-center justify-center gap-3">
+                    <span class="material-symbols-sharp">keyboard_backspace</span>
+                    <p class="text-sm">{messages.nav.return}</p>
+                </button>
+            </a>
+        </div>
+    {/if}
+</SchedulePicker>
+

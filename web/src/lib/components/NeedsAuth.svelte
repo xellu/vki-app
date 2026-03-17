@@ -20,6 +20,8 @@
     
     export let autoRedirect: boolean = false;
     export let silent: boolean = false;
+    export let onFail: Function = () => {};
+    export let onSuccess: Function = () => {};
     
 
     export let permissionsNeeded: string[] = [];
@@ -47,6 +49,9 @@
         let newSee = true;
 
         canSee = newSee;
+
+        canSee ? onSuccess() : onFail();
+
         console.info("Page View Permission granted");
     })
 
@@ -61,7 +66,7 @@
         <a href="/">{messages.nav.return}</a>
     </div> -->
 {:else if !state.loggedIn && !state.loading && !silent}
-    <div class="h-full w-full flex flex-col items-center justify-center p-5 fixed top-0 left-0 z-50 bg-surface-50-950/50 backdrop-blur-xl" transition:fade={{duration: 200}}>
+    <div class="h-full w-full flex flex-col items-center justify-center p-5 fixed top-0 left-0 z-40 bg-surface-50-950/50 backdrop-blur-xl" transition:fade={{duration: 200}}>
         <Loader center={false} error="{messages.errors.needsAuth}" />
         <!-- <ButtonOutline variant="error" onClick={() => {
             LogInDiscord(window.location.pathname)

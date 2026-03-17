@@ -98,15 +98,15 @@
                                 gradePreview.grade = g;
                                 gradePreview.open = true;
                         }}>
-                            <p class="text-ellipsis whitespace-nowrap overflow-hidden">
-                                <span class="text-error-500">{g.date}</span> • {g.description || "N/A"}
+                            <p class="text-ellipsis whitespace-nowrap overflow-hidden text-surface-800-200">
+                                <span class="text-error-500">{g.date}</span> {#if g.description} • {g.description || "N/A"} {/if}
                             </p>
                     
                         </button>
                     {/each}
 
                     {#if getAbsenceGrades(sub.grades).length == 0}
-                        <p class="text-xs text-success-500/50">{messages.absences.noAbsences}</p>
+                        <p class="text-xs text-surface-400-600/50">{messages.absences.noAbsences}</p>
                     {/if}
                 </div>
             </div>

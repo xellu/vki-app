@@ -6,6 +6,7 @@
     import PopUp from '$lib/components/PopUp.svelte';
 
     import { onMount } from 'svelte';
+    import { fade, slide } from 'svelte/transition';
 
     import { messageStore } from "$lib/stores/LanguageStore";
     import type { LanguageModel } from "$lib/models/Language";
@@ -66,6 +67,8 @@
         deferredPrompt = null;
         canInstall = false;
     }
+
+    let navOpen: boolean = $state(false);
 </script>
 
 <svelte:head>
@@ -75,6 +78,8 @@
 {#if State.loading}
     <Loader />
 {:else if State.loggedIn}
+
+<!-- LOGGED IN USER ------------------ -->
 
 <AppPage disableBack={true}>
     <div class="grow flex items-center justify-center flex-wrap gap-3 md:gap-10 select-none">
@@ -93,7 +98,7 @@
     <div class="flex items-center justify-between fixed bottom-0 w-full px-2">
         <div class="flex items-center gap-3">
             <img src="/assets/flag-cz.svg" alt="" class="rounded-md h-6 select-none" draggable="false">
-            <p class="text-xs">Made by <a href="https://github.com/xellu" class="underline" target="_blank">Xellu</a></p>
+            <p class="text-xs">Made by <a href="https://xellu.xyz/" class="underline" target="_blank">Xellu</a></p>
         </div>
 
         <a href="/settings">
@@ -104,19 +109,32 @@
 
 {:else}
 
+<!-- GUEST USER --------------------- -->
+
 <div class="p-3 w-full flex flex-col items-center md:overflow-hidden">
     <div class="flex items-center justify-between gap-3 select-none max-w-6xl w-full">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 max-md:hidden">
             <img src="/favicon.svg" alt="" class="h-12" draggable="false">
             <h1 class="h6 text-primary-500">VKI Plus</h1>
         </div>
+
+        <button class="md:hidden" onclick={() => {
+            navOpen = !navOpen
+        }}>
+            <span class="material-symbols-sharp scale-150">menu</span>
+        </button>
+
+        <div class="flex items-center gap-3 max-md:hidden">
+            <a href="/schedule">{messages.home.schedule}</a>
+        </div>
+        
         <div class="flex items-center gap-3">
             <select class="select max-md:hidden" bind:value={newLang} onchange={() => { setActiveLanguage(newLang); }}>
                 <option value="">Language</option>
                 {#each languages as lang}
                     <option value="{lang.id}">{lang.label}</option>
                 {/each}
-            </select>    
+            </select>
             <a href="/login">
                 <button class="btn preset-filled-primary-500">{messages.nav.login}</button>
             </a>
@@ -167,13 +185,52 @@
 
 {/if}
 
+<!-- mobile nav -->
+{#if navOpen}
+<button class="md:hidden fixed top-3 left-3 z-50" out:fade onclick={() => {
+    navOpen = !navOpen
+}}>
+    <span class="material-symbols-sharp scale-150">menu</span>
+</button>
+
+<div class="md:hidden fixed w-full h-screen flex flex-col justify-between items-center gap-10 p-3 bg-surface-50-950 z-40 top-0 left-0" transition:slide>
+    <div class="flex justify-center items-center w-full gap-3">
+        <img src="/favicon.svg" alt="" class="h-16" draggable="false">
+        <h1 class="h3 text-primary-500">VKI Plus</h1>
+    </div>
+
+    <div class="flex flex-col gap-3 text-lg">
+        <a href="/schedule">{messages.home.schedule}</a>
+    </div>
+
+    <div class="w-full flex items-center gap-3">
+        <select class="select w-1/3" bind:value={newLang} onchange={() => { setActiveLanguage(newLang); }}>
+            <option value="">Language</option>
+            {#each languages as lang}
+                <option value="{lang.id}">{lang.label}</option>
+            {/each}
+        </select>
+        <a href="/login" class="w-2/3">
+            <button class="btn preset-filled-primary-500 w-full">{messages.nav.login}</button>
+        </a>
+    </div>
+</div>
+{/if}
+
+
+<!-- PWA install prompt -->
 {#if canInstall && !State.loading && !State.loggedIn}
 <PopUp
     title = {messages.home.installTitle}
     open = {true}
 >
-    <p class="mb-5 text-surface-800-200">{messages.home.installBody}</p>
+    <p class="mb-5 text-surface-800-200"><span class="line-through">{messages.home.installBody}</span> (soon™)</p>
 
     <button class="btn preset-filled-primary-500" onclick={() => { installPWA() }}>{messages.home.installCTA}</button>
 </PopUp>
+
+<div class="fixed bottom-3 right-3 p-3 flex flex-col gap-1 items-end card preset-filled-surface-100-900">
+    <p>{messages.home.installNotification}</p>
+    <button class="btn btn-sm preset-filled-success-500" onclick={() => { installPWA() }}>{messages.home.installCTA}</button>
+</div>
 {/if}

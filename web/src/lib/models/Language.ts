@@ -32,9 +32,11 @@ export type LanguageModel = {
         settings: string,
 
         landingTitle: string,
+        
         installTitle: string,
         installBody: string,
-        installCTA: string
+        installCTA: string,
+        installNotification: string
     }
 
     login: {
@@ -53,6 +55,7 @@ export type LanguageModel = {
         },
         userSettings: {
             label: string,
+            username: string,
         }
         appInfo: {
             label: string
@@ -97,6 +100,15 @@ export type LanguageModel = {
         teacher: string,
         classroom: string,
         isCancelled: string,
+
+        allTimetables: string,
+        timetableTabs: {
+            class: string,
+            teacher: string,
+            classroom: string
+        },
+        course: string,
+        timetableFor: string,
     },
 
     absences: {

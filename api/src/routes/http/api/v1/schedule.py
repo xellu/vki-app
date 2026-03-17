@@ -13,15 +13,8 @@ from nautica.services.logger import LogManager
 
 logger = LogManager("Routes.Http.Schedule")
 
-@Request.GET("class")
-async def class_timetable(ctx: Context):
-    
-    if ctx.query.get("id"):
-        tt = ScheduleDB.getById(ctx.query.get("id"))
-        if not tt or tt.get("_type") != "CLASS": return Error("Class not found"), 404
-    
-        return Reply( schedule = tt, next_update=Schedules.next_update, error = Schedules.error )
-    
+@Request.GET("all")
+async def all_timetables(ctx: Context):
     classIds = ScheduleDB.data_keyed.copy()
     out = {}
     for className, classId in classIds.items():
@@ -35,61 +28,30 @@ async def class_timetable(ctx: Context):
         error = Schedules.error
     )
 
-@Request.GET("list/class")
-async def list_teachers(ctx):
+@Request.GET("list")
+async def list_timetables(ctx):
     classIds = ScheduleDB.data_keyed.copy()
-    out = []
+    
+    out = {}
     for className, classId in classIds.items():
         if not className: continue #skip unknown class names
         
-        data = ScheduleDB.getById(classId)
-        if data.get("_type") == "CLASS":
-            out.append(className)
-    return Reply(list=out) #ReplyList is broken in nautica lol
+        s = ScheduleDB.getById(classId)
+        if not s: continue
+        
+        _type = str(s.get("_type")).lower() #create categories
+        if _type not in out: out[_type] = []
+        
+        out[_type].append(className) #sort into categories
+        
+    return Reply(**out) #ReplyList is broken in nautica lol
     
 
-#-----------------------
-    
-@Request.GET("teacher") #TODO: fix, returns 404 - same w classrooms
+@Request.GET("for")
 @Require.query(id=str)
-async def teacher_timetable(ctx: Context):
-    tt = ScheduleDB.getById(ctx.query.get("id"))
-    if not tt or tt.get("_type") != "TEACHER": return Error("Teacher not found"), 404
-
-    return Reply( schedule = tt, next_update=Schedules.next_update, error = Schedules.error )
-
-@Request.GET("list/teacher")
-async def list_teachers(ctx):
-    classIds = ScheduleDB.data_keyed.copy()
-    out = []
-    for className, classId in classIds.items():
-        if not className: continue #skip unknown class names
-        
-        data = ScheduleDB.getById(classId)
-        if data.get("_type") == "TEACHER":
-            out.append(className)
-    return Reply(list=out)
+async def timetable_for(ctx: Context):
+    tt = ScheduleDB.getByKey(ctx.query.get("id"))
+    if not tt:
+        return Error("Timetable not found"), 404
     
-#------------------------------
-
-@Request.GET("classroom")
-@Require.query(id=str)
-async def classroom_timetable(ctx: Context):
-    tt = ScheduleDB.getById(ctx.query.get("id"))
-    if not tt or tt.get("_type") != "CLASSROOM": return Error("Classroom not found"), 404
-
-    return Reply( schedule = tt, next_update=Schedules.next_update, error = Schedules.error )
-
-
-@Request.GET("list/classroom")
-async def list_classroom(ctx):
-    classIds = ScheduleDB.data_keyed.copy()
-    out = []
-    for className, classId in classIds.items():
-        if not className: continue #skip unknown class names
-        
-        data = ScheduleDB.getById(classId)
-        if data.get("_type") == "CLASSROOM":
-            out.append(className)
-    return Reply(list=out)
-    
+    return Reply(**tt)

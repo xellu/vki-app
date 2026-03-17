@@ -33,7 +33,8 @@ export const ru_ru: LanguageOption = {
             landingTitle: "Твоё расписание, оценки и пропуски, в одном месте.",
             installTitle: "VKI Plus теперь в виде приложения",
             installBody: "Хочешь получать уведомления об изменениях в расписании или новых оценках? Установи приложение!",
-            installCTA: "Установить"
+            installCTA: "Скачать",
+            installNotification: "Скачай VKI+ ещё сегодня!"
         },
 
         login: {
@@ -52,6 +53,7 @@ export const ru_ru: LanguageOption = {
             },
             userSettings: {
                 label: "Настройки аккаунта",
+                username: "Профиль",
             },
             appInfo: {
                 label: "О приложении"
@@ -94,7 +96,16 @@ export const ru_ru: LanguageOption = {
             subject: "Предмет",
             teacher: "Преподаватель",
             classroom: "Аудитория",
-            isCancelled: "Это занятие отменено"
+            isCancelled: "Это занятие отменено",
+
+            allTimetables: "Выбрать Расписание",
+            timetableTabs: {
+                class: "Группы",
+                teacher: "Преподаватели",
+                classroom: "Аудитории"
+            },
+            course: "% Курс",
+            timetableFor: "Расписание для %"
         },
 
         absences: {
