@@ -30,10 +30,10 @@
     }
 
     export let listTab: "CLASS" | "TEACHER" | "CLASSROOM" = "CLASS";
-    let sortedTimetables: {CLASS: WeekSchedule[], TEACHER: WeekSchedule[], CLASSROOM: WeekSchedule[]} = { CLASS: [], TEACHER: [], CLASSROOM: [] };
+    let sortedTimetables: {CLASS: WeekSchedule[], TEACHER: WeekSchedule[], CLASSROOM: WeekSchedule[], undefined?: []} = { CLASS: [], TEACHER: [], CLASSROOM: [] };
 
     async function buildSorted(list: WeekSchedule[]) {
-        sortedTimetables = { CLASS: [], TEACHER: [], CLASSROOM: [] };
+        sortedTimetables = { CLASS: [], TEACHER: [], CLASSROOM: [], undefined: [] };
         list.forEach((tt) => { 
             console.log(tt._type)
             sortedTimetables[tt._type].push(tt);
