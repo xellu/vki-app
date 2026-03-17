@@ -34,7 +34,7 @@
 
     async function buildSorted(list: WeekSchedule[]) {
         sortedTimetables = { CLASS: [], TEACHER: [], CLASSROOM: [] };
-        list.forEach((tt) => { sortedTimetables[tt._type].push(tt); });
+        list.forEach((tt) => { sortedTimetables[tt._type] = sortedTimetables.[tt._type].concat(tt); });
         
         //group classes by years
         sortedTimetables.CLASS = sortedTimetables.CLASS.toSorted((a, b) => {
