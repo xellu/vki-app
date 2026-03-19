@@ -7,7 +7,7 @@ from nautica.api import Config
 from nautica.services.logger import LogManager
 
 from src.lib.Utils import delete_spaces
-from src.lib.models.Schedule import WeekSchedule, DaySchedule, Lesson
+from src.lib.models.Schedule import WeekSchedule, DaySchedule, Lesson, SubjectType
 
 logger = LogManager("Lib.Schedule.Networking")
 
@@ -72,11 +72,25 @@ class NSUTablesUtil:
             
             begin = lesson.get("time", {}).get("begin")
             
+            #get lesson type
+            _type = SubjectType.SEMINAR
+            match str(lesson.get("lesson", {}).get("type")):
+                case "3": _type = SubjectType.LAB
+                case "2": _type = SubjectType.PRACTICAL
+                case "1": _type = SubjectType.LESSON
+            
+            parallelGroups = []
+            for group in lesson.get("schoolClasses", []):
+                parallelGroups.append(group.get("name").replace('В', '', 1))
+            
             #                                        v--- i'd rather it just fail than overwrite some bs
             days[weekDay].lessons[LESSONS_INDEXED[begin]] = Lesson(
                 subject = lesson.get("lesson", {}).get("name", "N/A"),
                 teacher = teacher_data.get("name", "N/A"),
-                classroom = classroom_data.get("name", "N/A")
+                classroom = classroom_data.get("name", "N/A"),
+                
+                parallelGroups = parallelGroups,
+                _type = _type
             )
 
         #build mon-sat list (weekdays 1–6), filling missing days with empty schedules
@@ -93,7 +107,7 @@ class NSUTablesUtil:
         )
     
     def _fetchSchedule(self, target_week: int, className: str = "", teacher: str = "", classroom: str = "") -> WeekSchedule:
-        r = requests.get(f"https://table-ci.nsu.ru/api/schedule/find?group={className}&teacher=&classroom=&week={target_week}&year={self.calendar.year}")
+        r = requests.get(f"https://table-ci.nsu.ru/api/schedule/find?group={className}&teacher={teacher}&classroom={classroom}&week={target_week}&year={self.calendar.year}")
         if not r.ok:
             self.failedRequest(r, "getClassScheduleData")
         
@@ -138,6 +152,8 @@ class NSUTablesUtil:
         return self._fetchSchedule(className, week or self.week)
 
     #timetables for teachers-----------------------
+    #potentionally just construct all the other schedules from the class timetables?
+    
     def _getPartialTeacherList(self, filter) -> list[str]:
         r = requests.get(f"https://table-ci.nsu.ru/api/teacher?filter={filter}")
         teachers = []

@@ -35,7 +35,7 @@
     async function buildSorted(list: WeekSchedule[]) {
         sortedTimetables = { CLASS: [], TEACHER: [], CLASSROOM: [], undefined: [] };
         list.forEach((tt) => { 
-            console.log(tt._type)
+            // console.log(tt._type)
             sortedTimetables[tt._type].push(tt);
          });
         

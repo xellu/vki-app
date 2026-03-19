@@ -25,6 +25,8 @@ class Lesson:
     subject: str #e.g. "Matematika"
     teacher: str #pretty self explanatory
     classroom: str #where the lesson is taking place (e.g. "101")
+    parallelGroups: list[str] = field(default_factory=list)
+    _type: SubjectType = SubjectType.SEMINAR
 
     changes: dict = field(default_factory=dict)
     #"attribute": ["previous value", "new value"], for example:
@@ -49,13 +51,13 @@ class Lesson:
                         label = abbreviation
         return label or ""
     
-    def get_type(self) -> SubjectType:
-        subj_type = SubjectType.SEMINAR
-        # for x, _type in subject_types.items(): #broken atm
-        #     # print(f"{x.lower()} in {self.raw.lower()} = {(x.lower() in self.raw.lower())}")
-        #     if x.lower() in self.raw.lower():
-        #         subj_type = _type
-        return subj_type
+    # def get_type(self) -> SubjectType:
+    #     subj_type = SubjectType.SEMINAR
+    #     # for x, _type in subject_types.items(): #broken atm
+    #     #     # print(f"{x.lower()} in {self.raw.lower()} = {(x.lower() in self.raw.lower())}")
+    #     #     if x.lower() in self.raw.lower():
+    #     #         subj_type = _type
+    #     return subj_type
     
     def to_dict(self) -> dict:
         if self.classroom.lower() == "физическая культура":
@@ -66,12 +68,12 @@ class Lesson:
     
         return {
             "short": abbreviation,
-            "type": self.get_type().value,
+            "type": self._type.value,
             
             "subject": subject_names.get(abbreviation) or self.subject,
             "teacher": self.teacher,
             "classroom": self.classroom,
-            # "raw": self.raw,
+            "parallelGroups": self.parallelGroups,
             
             "changes": self.changes,
             "isCancelled": self.isCancelled,

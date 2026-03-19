@@ -96,6 +96,7 @@ export const ru_ru: LanguageOption = {
             subject: "Предмет",
             teacher: "Преподаватель",
             classroom: "Аудитория",
+            parallelGroups: "Параллельные группы",
             isCancelled: "Это занятие отменено",
 
             allTimetables: "Выбрать Расписание",

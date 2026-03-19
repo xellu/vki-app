@@ -98,6 +98,7 @@ export const en_us: LanguageOption = {
             subject: "Subject",
             teacher: "Professor",
             classroom: "Classroom",
+            parallelGroups: "Parallel Groups",
             isCancelled: "This class is cancelled",
 
             

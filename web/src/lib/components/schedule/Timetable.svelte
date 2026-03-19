@@ -51,7 +51,7 @@
             </div>
 
             {#each day.lessons as lesson, lessonIndex}
-                <LessonCell {lesson} {isToday} {lessonIndex} />
+                <LessonCell {tt} {lesson} {isToday} {lessonIndex} />
             {/each}
 
             {#each createArr(6 - day.lessons.length)}

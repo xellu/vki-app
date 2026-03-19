@@ -99,6 +99,7 @@ export type LanguageModel = {
         subject: string,
         teacher: string,
         classroom: string,
+        parallelGroups: string,
         isCancelled: string,
 
         allTimetables: string,
