@@ -33,7 +33,7 @@
     }
 
     function getValidGrades(grades: GradeType[]) {
-        return grades.filter((g) => { return g.value > 0; })
+        return grades.filter((g) => { return g.value > 0 || g.type != null; })
     }
 
     function getAverageGrade(grades: GradeType[]) {
@@ -134,7 +134,7 @@
                             gradePreview.open = true;
                         }}>
                             <p class="{GradeColors[g.value] || "text-surface-950-50"}">
-                                {g.grade}{#if g.type}<span class="text-xs">({g.type})</span>{/if}{#if index != getValidGrades(sub.grades).length - 1}<span class="text-surface-950-50">,</span>{/if}
+                                {g.grade || "Н"}{#if g.type}<span class="text-xs">({g.type})</span>{/if}{#if index != getValidGrades(sub.grades).length - 1}<span class="text-surface-950-50">,</span>{/if}
                             </p>
                         </button>
                     {/each}
@@ -156,7 +156,7 @@
     title = {messages.grades.about.title}
     bind:open = {gradePreview.open}
 >
-    <h2 class="text-7xl font-bold text-center mb-5 {gradePreview.grade?.value ? GradeColors[gradePreview.grade.value] || 'text-surface-950-50' : 'text-surface-950-50'}">{gradePreview.grade?.grade}</h2>
+    <h2 class="text-7xl font-bold text-center mb-5 {gradePreview.grade?.value ? GradeColors[gradePreview.grade.value] || 'text-surface-950-50' : 'text-surface-950-50'}">{gradePreview.grade?.grade || "Н"}</h2>
 
     {#if gradePreview.grade?.type}
         <p><span class="font-semibold">{messages.grades.about.type}:</span> {gradePreview.grade?.type}</p>
