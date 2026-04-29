@@ -8,8 +8,13 @@
 @import '@skeletonlabs/skeleton/themes/cerberus';
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
+
+@theme {
+	--font-mono: "Jetbrains Mono", monospace;
+}
 
 .debug {
 	border: 1px solid red;

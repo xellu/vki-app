@@ -76,7 +76,8 @@ class ScheduleManager:
             self.last_update = time.time() 
             self.error = None
             
-            
+        logger.warn(f"ScheduleManager update thread exited")
+        
     def create_diff(self, schedule: dict):
         if not schedule:
             return

@@ -114,7 +114,10 @@ export const ru_ru: LanguageOption = {
             noAbsences: "Прогулов нет, так и держись",
             about: {
                 title: "О Пропуске",
-            }
+            },
+            skippedHours: "Пропусков",
+            allHours: "Пары",
+            skippedPercentage: "Процент"
         }
     }
 }

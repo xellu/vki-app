@@ -41,8 +41,11 @@
 		"error",
 		"arrow_forward",
 		"menu",
-		"account_circle"
-
+		"account_circle",
+		"view_list",
+		"view_agenda",
+		"frame_inspect",
+		
 	].toSorted();
 </script>
 

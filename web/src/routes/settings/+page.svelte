@@ -2,11 +2,16 @@
     import NeedsAuth from '$lib/components/NeedsAuth.svelte';
 	import LightSwitch from '$lib/components/LightSwitch.svelte';
     import AppPage from '$lib/components/AppPage.svelte';
+    import DebugInfo from '$lib/components/DebugInfo.svelte';
 
     import { Account, type Profile } from '$lib/scripts/Auth';
+    import { temp } from '$lib/scripts/Temp';
 
     import { setActiveLanguage, languages } from '$lib/scripts/LanguageManager';
     import { LogOut } from '$lib/scripts/Auth';
+
+    import { Switch } from '@skeletonlabs/skeleton-svelte';
+    import { onMount } from 'svelte';
 
     import { messageStore, languageStore } from "$lib/stores/LanguageStore";
     import type { LanguageModel } from "$lib/models/Language";
@@ -20,6 +25,12 @@
     Account.subscribe((value) => { User = value; })
     messageStore.subscribe((value) => { messages = value; });
     languageStore.subscribe((value) => { activeLang = value; })
+
+    let debugEnabled: boolean = false;
+
+    onMount(() => {
+        debugEnabled = temp.get("debugMode") || false;
+    })
 </script>
 
 <style lang="postcss">
@@ -79,7 +90,33 @@
 
                 &copy 2026 Xellu, All Rights Reserved.
             </p>
+
+            <div class="my-12 h-px w-full bg-surface-100-900"></div>
+
+            <div class="flex gap-3 items-center text-surface-700-300">
+                <p class="text-xs">Developer Tools</p>
+                <Switch checked={debugEnabled} onCheckedChange={(details) => {
+                    debugEnabled = details.checked;
+                    temp.set("debugMode", debugEnabled, 999999999999);
+                }}>
+                    <Switch.Control>
+                        <Switch.Thumb />
+                    </Switch.Control>
+                    <Switch.HiddenInput />
+                </Switch>
+            </div>
             
         </div>
     </AppPage>
 </NeedsAuth>
+
+<DebugInfo preview="Developer Tools Enabled">
+--- Account Info ---
+ID: <span class="text-xs">{User?._id}</span>
+Name: {User?.name}
+Group: {User?.group}
+Inbox: {User?.inbox.length} entries
+
+--- App Settings ---
+Language: {activeLang}
+</DebugInfo>

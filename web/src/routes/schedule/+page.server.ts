@@ -5,7 +5,7 @@ export const load: PageServerLoad = async ({ fetch }) => {
     const r = await fetch('http://127.0.0.1:8100/api/v1/schedule/all');
 
     if (!r.ok) {
-        return { timetables: [] as WeekSchedule[], scheduleError: 'errors.scheduleNetworkError' };
+        return { timetables: [] as WeekSchedule[], scheduleError: 'errors.scheduleNetworkError', nextUpdate: 0 };
     }
 
     const data = await r.json();
@@ -13,6 +13,7 @@ export const load: PageServerLoad = async ({ fetch }) => {
 
     return {
         timetables,
-        scheduleError: (data.error as string) ?? null
+        scheduleError: (data.error as string) ?? null,
+        nextUpdate: data.next_update
     };
 };

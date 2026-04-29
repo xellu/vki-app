@@ -3,6 +3,7 @@
     import AppPage from "$lib/components/AppPage.svelte";
     import Timetable from "$lib/components/schedule/Timetable.svelte";
     import SchedulePicker from "$lib/components/schedule/SchedulePicker.svelte";
+    import DebugInfo from "$lib/components/DebugInfo.svelte";
 
     import { onMount } from "svelte";
 
@@ -14,8 +15,9 @@
     import { en_us } from "$lib/lang/en_us";
 
     import { toaster } from "$lib/scripts/Toaster";
+    import { walkDict } from "$lib/scripts/Util";
 
-    export let data: { timetables: WeekSchedule[], scheduleError: string | null };
+    export let data: { timetables: WeekSchedule[], scheduleError: string | null, nextUpdate: number };
 
     let messages: LanguageModel | any = en_us.model;
     let User: Profile | null = null;
@@ -51,6 +53,7 @@
         }
     });
 
+    let debugTt = false;
 </script>
 
 <svelte:head>
@@ -116,4 +119,34 @@
         </div>
     {/if}
 </SchedulePicker>
+
+<DebugInfo preview={`Next Update: ${new Date(data.nextUpdate*1000).toLocaleString()}`}>
+selected: {selected}
+listOpen: {listOpen}
+
+timetables: <button class="btn btn-sm preset-tonal-warning" onclick={() => {debugTt = !debugTt}}>{debugTt ? 'hide' : 'show'}</button>
+{#if debugTt}
+<div class="max-h-96 overflow-y-scroll">
+    {#each timetables as tt}
+        {#if tt.className == selected}
+        
+            {#each tt.days as day}
+                <br><br><br>----- {new Date(day.date*1000).toDateString()} -----
+                {#each day.lessons as l}
+                    <br><br>--- {l.subject} ---
+                    {#each walkDict(l) as x}
+                        <br>* {x.key}: {x.value}
+                    {/each}
+                {/each}
+
+            {/each}
+
+        {/if}
+    {/each}
+</div>
+{/if}
+
+<br>nextUpdate: {new Date(data.nextUpdate*1000).toLocaleString()}
+scheduleError: "{data.scheduleError}"
+</DebugInfo>
 

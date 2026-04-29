@@ -3,12 +3,13 @@
     import NeedsAuth from "$lib/components/NeedsAuth.svelte";
     import Loader from "$lib/components/Loader.svelte";
     import AppPage from "$lib/components/AppPage.svelte";
+    import DebugInfo from "$lib/components/DebugInfo.svelte";
 
     import { onMount } from "svelte";
     import { slide } from "svelte/transition";
 
     import type { GradeSubject, GradeType } from "$lib/models/Grades";
-    import { createArr } from "$lib/scripts/Util";
+    import { createArr, walkDict } from "$lib/scripts/Util";
     import { toaster } from "$lib/scripts/Toaster";
     
     import { messageStore } from "$lib/stores/LanguageStore";
@@ -171,3 +172,13 @@
     </p>
 
 </PopUp>
+
+<DebugInfo>
+lastSemester: {lastSemester}
+selected: {selected}
+
+{#each walkDict(gradePreview) as x}
+<br>gradePreview.{x.key}: {x.value}
+{/each}
+
+</DebugInfo>

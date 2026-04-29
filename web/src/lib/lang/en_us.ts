@@ -117,7 +117,10 @@ export const en_us: LanguageOption = {
             noAbsences: "No absences on record. Good work!",
             about: {
                 title: "About an absence",
-            }
+            },
+            skippedHours: "Skipped",
+            allHours: "Total",
+            skippedPercentage: "Percentage"
         },
     }
 }

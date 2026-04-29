@@ -118,6 +118,9 @@ export type LanguageModel = {
         about: {
             title: string,
             //the rest it gets from grades.about; no reason to have duplicates
-        }
+        },
+        skippedHours: string,
+        allHours: string,
+        skippedPercentage: string,
     }
 }
