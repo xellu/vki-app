@@ -105,7 +105,7 @@
     {#if lesson.parallelGroups.length > 0}
     <div class="mt-3">
         <p class="font-semibold">{messages.schedule.parallelGroups}:</p>
-        <div class="flex flex-col gap-1 p-3 rounded-md bg-surface-100-900/50">
+        <div class="flex flex-col gap-1 p-3 rounded-md bg-surface-100-900/50 {lesson.parallelGroups.length > 4 ? 'max-h-44 overflow-y-scroll' : ''}">
             {#each lesson.parallelGroups as group}
                 <a href="/schedule/{group}" onclick={() => { open = false }} class="text-primary-500">{group}</a>
             {/each}
