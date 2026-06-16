@@ -31,7 +31,7 @@ class NsuAPI(Service):
         
         self.YearsDB: XelDB.Instance = None
         
-    class NsuAPIClient:
+    class Client:
         def __init__(self, cookies, years_db: XelDB.Instance):
             headers = _header_gen(country="ru")
 
@@ -243,7 +243,7 @@ class NsuAPI(Service):
         self.YearsDB: XelDB.Instance = registry["XelDB"].create("Cache-NsuAPI1", primary_key="key")
 
         
-    def client(self, cookies) -> NsuAPIClient:
-        return self.NsuAPIClient(cookies, self.YearsDB)
+    def getClient(self, cookies) -> Client:
+        return self.Client(cookies, self.YearsDB)
 
 Service.Export(NsuAPI, depends_on=["XelDB"])

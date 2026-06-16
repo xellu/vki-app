@@ -36,4 +36,4 @@ credentials = false # Allow cookies and auth headers (Authorization) to be sent 
 [shell]
 systemdMode = false # Disables console input, to work as a systemd service
 gui = true # Whether to use textual TUI renderer
-guiTheme = "frost" # Available themes are: frost (default), catppuccin, nord, gruvbox, tokyo-night, textual-dark, solarized-light, atom-one-dark, atom-one-light
+guiTheme = "catppuccin" # Available themes are: frost (default), catppuccin, nord, gruvbox, tokyo-night, textual-dark, solarized-light, atom-one-dark, atom-one-light

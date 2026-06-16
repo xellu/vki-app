@@ -105,7 +105,7 @@ class GradesWorker(Service):
                 Logger.warn(f"Login failed for {uid}: {error}")
                 return False
 
-            api = NsuAPI(cookies)
+            api = NsuAPI.getClient(cookies)
             semester = await api.get_latest_semester()
             grades = await api.get_grades(semester)
         except NsuAPIError as err:

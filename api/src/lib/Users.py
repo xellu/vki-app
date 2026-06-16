@@ -2,14 +2,10 @@ from cryptography.fernet import Fernet
 
 from .models.User import UserModel, SanitizeUser
 
-# from nautica.api import MongoDB, Config
-# from nautica.services.logger import LogManager
-# from nautica.services.shell.descriptor import ShellCommand
 
-# from plugins.intercom import Intercom
 
-from nautica import Config, ConfigBuilder, Logger
-from nautica.services.builtins.shell.decorator import RegisterCommand, CommandRequirements
+from nautica import Config, Logger
+from nautica.services.builtins.shell.decorator import RegisterCommand
 from src.lib.Mongo import Mongo
 
 class UserActionResponse:

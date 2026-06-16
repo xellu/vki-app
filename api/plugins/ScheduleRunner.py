@@ -30,11 +30,11 @@ class ScheduleRunner(Service):
         self.ScheduleDB = registry["XelDB"].create("Cache-Schedule", primary_key="className")
     
         self.next_update = Config("vki")["schedules.updateInterval"]
-        self.last_update = Config("vki").get("persist.scheduleNextUpdate", 0)
             
         @RegisterCommand("schedule.update", "Updates the schedule from remote")
         def reset_schedule_cooldown(*args, **kwargs):
             if not self.running:
+                logger.warn("Schedule exited, rebooting")
                 self.onStart(Services)
                 
             self.next_update = 0
@@ -42,7 +42,7 @@ class ScheduleRunner(Service):
         @RegisterCommand("test", "test")
         def test_command(*args, **kwargs):
             for teach in NSUTablesUtil().getClassroomScheduleData():
-                print(teach)
+                logger.info(teach)
             
         @RegisterCommand("schedule.dump", "Dumps lesson data from all schedules into a file",
             CommandRequirements(
@@ -85,15 +85,17 @@ class ScheduleRunner(Service):
         
         self.thread = Thread(target=self.update_schedule)
         self.thread.start()
-        logger.ok("Started schedule manager")
+        logger.ok("Started schedule runner")
         
     def onClose(self, reason):
         self.running = False
         if self.thread:
             self.thread.join(30)
-        logger.ok("Stopped schedule manager")
+        logger.ok("Stopped schedule runner")
     
     def update_schedule(self):
+        self.last_update = Config("vki").get("persist.scheduleNextUpdate", 0)
+        
         while self.running:
             if time.time() < self.next_update:
                 time.sleep(1/4)

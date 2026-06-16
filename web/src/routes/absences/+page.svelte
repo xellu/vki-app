@@ -50,7 +50,7 @@
     async function fetchAbsences() {
         loading = true;
         try {
-            const r = await fetch(`/api/v1/grades/grades?semester=${lastSemester}`)
+            const r = await fetch(`/api/v2/grades/grades?semester=${lastSemester}`)
             const data = await r.json()
 
             if (!r.ok) {
