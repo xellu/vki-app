@@ -80,6 +80,8 @@
         view = type;
         temp.set("absences.viewType", type, 99999999999999999999); //hopefully long enough
     }
+
+    let debugSemester: string = ""
 </script>
 
 <svelte:head>
@@ -192,6 +194,17 @@ lastSemester: {lastSemester}
 
 {#each walkDict(gradePreview) as x}
 <br>gradePreview.{x.key}: {x.value}
+
 {/each}
+
+<div class="flex flex-col gap-1 mt-5">
+    <p>Semester:</p>
+    <div class="flex gap-3">
+        <input type="text" class="input w-44" bind:value={debugSemester}>
+        <button class="btn btn-sm preset-filled-warning-500" onclick={() => {
+            window.location.href = `/absences?semester=${debugSemester}`
+        }}>Go</button>
+    </div>
+</div>
 
 </DebugInfo>
