@@ -42,15 +42,21 @@
     onMount(async () => {
         console.log(`Selected semester: ${lastSemester}`)
     
-        await fetchAbsences();
+        let semester = lastSemester;
+        const search = new URLSearchParams(window.location.search);
+        if (search.has("semester")) {
+            semester = parseInt(search.get("semester") as string)
+        }
+
+        await fetchAbsences(semester);
         view = temp.get("absences.viewType") || "simple";
     })
 
     let loading: boolean = false;
-    async function fetchAbsences() {
+    async function fetchAbsences(semester: number) {
         loading = true;
         try {
-            const r = await fetch(`/api/v2/grades/grades?semester=${lastSemester}`)
+            const r = await fetch(`/api/v2/grades/grades?semester=${semester}`)
             const data = await r.json()
 
             if (!r.ok) {
