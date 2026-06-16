@@ -4,6 +4,13 @@ debug = false # Enables tools and endpoints useful of debugging
 [services]
 shell = true # Enables the interactive shell
 http = true # Enables the HTTP Server service
+mongodb = true # Enable MongoDB
+nauth = true # Enable NAuth
+vkiconfig = true # Enable VKIConfig
+xeldb = true # Enable XelDB
+nsuapi = true # Enable NsuAPI
+gradesworker = true # Enable GradesWorker
+schedulerunner = true # Enable ScheduleRunner
 
 [http]
 host = "127.0.0.1" # Use 0.0.0.0 to expose your app, 127.0.0.1 to keep local
@@ -28,5 +35,5 @@ credentials = false # Allow cookies and auth headers (Authorization) to be sent 
 
 [shell]
 systemdMode = false # Disables console input, to work as a systemd service
-gui = false # Whether to use textual TUI renderer
+gui = true # Whether to use textual TUI renderer
 guiTheme = "frost" # Available themes are: frost (default), catppuccin, nord, gruvbox, tokyo-night, textual-dark, solarized-light, atom-one-dark, atom-one-light

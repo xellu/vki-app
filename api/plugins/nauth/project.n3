@@ -1,0 +1,4 @@
+name = "nauth" # This name will be used on the package registry; a-z0-9._-
+version = "1.0.2" # Project version, format: https://semver.org/
+dependsOn = ["mongodb==1.1.0"] # List of package names that are required to run this service. Services need to be available on package registry.
+pyPackages = [] # List of PyPI packages this service depends on.
