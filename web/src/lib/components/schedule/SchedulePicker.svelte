@@ -58,7 +58,7 @@
 
     onMount(async () => {
         if (timetables.length === 0) {
-            const r = await fetch('/api/v1/schedule/all');
+            const r = await fetch('/api/v2/schedule/all');
             if (r.ok) {
                 const data = await r.json();
                 timetables = Object.values(data.schedule ?? {}) as WeekSchedule[];

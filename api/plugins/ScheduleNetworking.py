@@ -3,13 +3,10 @@ from typing import Iterator
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from nautica.api import Config
-from nautica.services.logger import LogManager
+from nautica import Config, Logger as logger
 
 from src.lib.Utils import delete_spaces
 from src.lib.models.Schedule import WeekSchedule, DaySchedule, Lesson, SubjectType
-
-logger = LogManager("Lib.Schedule.Networking")
 
 LESSONS_INDEXED = {
     #begin time: index

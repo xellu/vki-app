@@ -1,20 +1,21 @@
-from nautica.api.http import (
-    Context, 
-    Request,
-    Require,
-    
+from napi.http import (
+    HTTP,
+    Context,
     Reply,
-    ReplyList,
-    Error,
+    Error
 )
 
-from src.lib.schedule.Runner import Schedules, ScheduleDB
-from nautica.services.logger import LogManager
+from nautica import Services
 
-logger = LogManager("Routes.Http.Schedule")
+from src.nauth import Auth
+from plugins.ScheduleRunner import ScheduleRunner
 
-@Request.GET("all")
-async def all_timetables(ctx: Context):
+@HTTP.GET("/all")
+# @Auth.Protect()
+async def all_timetables():
+    Schedules: ScheduleRunner = Services.get("ScheduleRunner")
+    ScheduleDB = Schedules.ScheduleDB
+    
     classIds = ScheduleDB.data_keyed.copy()
     out = {}
     for className, classId in classIds.items():
@@ -27,9 +28,11 @@ async def all_timetables(ctx: Context):
         next_update=Schedules.next_update,
         error = Schedules.error
     )
+    
+@HTTP.GET("/list")
+async def list_timetables():
+    ScheduleDB: ScheduleRunner = Services.get("ScheduleRunner").ScheduleDB
 
-@Request.GET("list")
-async def list_timetables(ctx):
     classIds = ScheduleDB.data_keyed.copy()
     
     out = {}
@@ -44,14 +47,14 @@ async def list_timetables(ctx):
         
         out[_type].append(className) #sort into categories
         
-    return Reply(**out) #ReplyList is broken in nautica lol
-    
+    return Reply(**out)
 
-@Request.GET("for")
-@Require.query(id=str)
-async def timetable_for(ctx: Context):
+@HTTP.GET("for")
+@HTTP.Require(query={"id": str})
+async def timetables_for(ctx: Context):
+    ScheduleDB: ScheduleRunner = Services.get("ScheduleRunner").ScheduleDB
     tt = ScheduleDB.getByKey(ctx.query.get("id"))
     if not tt:
-        return Error("Timetable not found"), 404
+        return Error(404, "Timetable not found")
     
     return Reply(**tt)

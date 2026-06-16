@@ -31,8 +31,6 @@ MANIFEST
 .testenv/
 config/
 package.zip
-*.xdb
-dump.txt
 
 # PyInstaller
 *.manifest

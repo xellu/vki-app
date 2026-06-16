@@ -64,7 +64,7 @@
     async function updateGrades() {
         loading = true;
         try {
-            const r = await fetch(`/api/v1/grades/grades?semester=${selected}`)
+            const r = await fetch(`/api/v2/grades/grades?semester=${selected}`)
             const data = await r.json()
 
             if (!r.ok) {

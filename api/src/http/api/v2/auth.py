@@ -1,22 +1,19 @@
-from nautica.api.http import (
+from napi.http import (
+    HTTP,
     Context,
-    
-    Request,
-    Require,
     
     Reply,
     Error
 )
-from nautica.api import Sessions
 
+from src.nauth import Auth
 from src.lib.Users import UserManager
-from src.lib.Auth import Authenticate
 from src.lib.NsuAPI import NsuAPI
 
-from fastapi.responses import JSONResponse
+import time
 
-@Request.POST()
-@Require.body(email=str, password=str)
+@HTTP.POST()
+@HTTP.Require(body={ "email": str, "password": str })
 async def login(ctx: Context):
     if not ctx.body["email"].endswith("@g.nsu.ru"):
         ctx.body["email"] += "@g.nsu.ru" #to prevent using username logins
@@ -24,9 +21,10 @@ async def login(ctx: Context):
     user = UserManager(email=ctx.body["email"])
     
     #check if cab.nsu.ru login is valid
-    cookies, error = await NsuAPI.login(ctx.body["email"], ctx.body["password"])
+    cookies, error = await NsuAPI.Client.login(ctx.body["email"], ctx.body["password"])
     if error:
-        return Error(error), 403
+        # return Error(error), 403
+        raise Error(403)
     
     _isNew = False
     if not user.is_valid(): #create new user
@@ -35,7 +33,7 @@ async def login(ctx: Context):
     
     if _isNew or not user.get("name") or not user.get("group"): #or True: #get profile data only on sign up or if they're missing for some reason
         #update profile name and group
-        name, group = NsuAPI(cookies).get_profile()
+        name, group = NsuAPI.getClient(cookies).get_profile()
         if name: user.user["name"] = name
         if group: user.user["group"] = group
         if name or group:
@@ -45,30 +43,30 @@ async def login(ctx: Context):
         user.user["password"] = user.encrypt_password(ctx.body["password"])
         user.update()
     
-    #create session    
-    sessionId = Sessions.create(
+    #create session
+    expire = 60 * 60 * 24 * 365
+    session = Auth.createSession(
         refId = user.get("_id"),
-        expire = None # so sessions won't expire
+        expire = time.time() + expire
     )
-    
-    r = JSONResponse(content={"session": sessionId})
-    r.set_cookie("session", sessionId, max_age=60*60*24*365)
-    return r
 
-@Request.POST() #apparently POST instead of GET prevents caching issues????
+    return Reply(session=session.sessionId) \
+        .SetCookie("session") \
+            .value(session.sessionId) \
+            .maxAge(expire) \
+            .build()
+            
+@HTTP.POST()
+@Auth.Protect()
 async def me(ctx: Context):
-    auth = Authenticate(ctx).cookie()
-    if not auth.ok: return Error(auth.error), 401
+    user: UserManager = ctx.profile
     
-    user = auth.getUser()
     return Reply(
         **user.get_profile()
     )
     
-@Request.POST()
+@HTTP.POST()
+@HTTP.Require(cookies={"session": str})
 async def logout(ctx: Context):
-    auth = Authenticate(ctx).cookie()
-    if not auth.ok: return Error(auth.error), 401
-    
-    Sessions.delete(ctx.cookies.get("session"))
+    Auth.deleteSession(ctx.cookies.get("session"))
     return Reply()

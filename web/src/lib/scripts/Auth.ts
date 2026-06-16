@@ -25,7 +25,7 @@ export { Account, AuthState, AuthModalState };
 async function Authenticate(): Promise<{state: AuthStateType, account?: Profile}> {
     AuthState.set({loggedIn: false, loading: true});
 
-    const r = await fetch(`/api/v1/auth/me`, {
+    const r = await fetch(`/api/v2/auth/me`, {
         method: "POST",
     })
 
@@ -121,7 +121,7 @@ async function LogIn(email: string, password: string): Promise<AuthStateType> {
     try {
         AuthState.set({loggedIn: false, loading: true});
 
-        const r = await fetch(`/api/v1/auth/login`, {
+        const r = await fetch(`/api/v2/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -173,7 +173,7 @@ async function LogOut(): Promise<AuthStateType> {
     try {
         let localExpire = localStorage.getItem("account.expire");
         if (localExpire && parseInt(localExpire) > Date.now()) { //this means the account is still valid
-            const r = await fetch(`/api/v1/auth/logout`, {
+            const r = await fetch(`/api/v2/auth/logout`, {
                 method: "POST"
             })
         }
